@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Offline GPS Logger - DMS Fixed</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAENklEQVR4nO3dwW0UQRgF4QERBOIAkRAC8ZACxEMIRMIBRBgcRhqt1ni93tqZfa+7vhMyQu7uqenfsrD85uO334t0q7ePXoC6GZAQAxJiQEIMSIgBCTEgIQYkxICEGJAQAxJiQEIMSIgBCTEgIQYkxICEGJAQAxJiQEIMSIgBCTEgIQYkxICEGJAQAxJiQEIMSIgBCTEgIQYkxICEGJAQAxJiQEIMSIgBCTEgIQYkxICEGJAQAxJiQEIMSIgBCTEgIe8evYAsv75+OPvI3y+f3//4efbBT9//HLWidLMH9LSYG/7VzD29mfA3Fl4fzd8vn9c/PL2EnjNbTHPdQLfdNzd8inkymiKgA7p57jMOX9LgI4yks82v1fVT7KmBMxr2Bjr+1rlg4Lk25veBourZZK4KGm2E3eshnc2vFZlip0a6ioa6gVpe8ZZ1XmOcgLqeStdqLxhhhN39Yfx3fq3uNcU27eOs/gZqf5Xb198dUPvpr6p3URzQTud+YX69+Lc3622oNaDeE39O6Y4qAyo96xc17qsvoF1P+ZoJtdMUW9U11BeQopQFVPeC3qBrj00B7X2y18+mXafYUtVQTUBFZ3oXLfutCUiZOgI64HV87VTae4otJZdQQUAV57iT/L0XBKRk6QEd8wreNo8OmGJL/CWUHpDCRQcU/vIdJvkcogM6BplEx0yxZAYkJDeg5Hv7eLGnkRvQMfgMmnyKhQYU+8I9UOaZhAakFlMHdK/pM/MUmzogcYk/mZo57EOk/SSrN5AQAxJiQEIMSEhcQH4FfVna+cQFpC4GJMSAhBiQEAMSYkBCDEiIAQkxICEGJMSAhBiQkLiA0v7HXZq084kLSF0MSIgBCTEgIYkBpX2dmCPwZBIDUhEDEmJAQkIDChz2D5d5JqEBqUVuQJkv3KPEnkZuQKpgQEKiA4q9tw+WfA7RASlfekDJL98xwk8gPSCFKwgo/BXcVf7eCwJaGs5xDxW77ghIsWoCqngd76hlvzUBLT1nyhXttCmgpepkb9a1x7KAlKYvoK4X9LXqdtcX0FJ4yldq3FdlQEvnWV9WuqPWgJbaE/+v3r0UB7Q0n/up6l10B7SUn/7Sv/53j17AHazPIO2XSLyoPZ1V/Q206XoeXau9YJyAlp6n0rLOa4wwwk6Fj7OR0lkNdQNtMp9T5qqg0W6gTdRVNGQ6q2EDWj08o4HTWQ0e0Gp7ioeVNHw3mykC2hxwIc2TzmqugFanz/guMc0WzakZAzp19uyv7GnmYs7MHtAZy3itMb8PpMMYkBADEmJAQgxIiAEJMSAhBiTEgIQYkBADEmJAQgxIiAEJMSAhBiTEgIQYkBADEmJAQgxIiAEJMSAhBiTEgIQYkBADEmJAQgxIiAEJMSAhBiTEgIQYkBADEmJAQgxIiAEJMSAhBiTEgIQYkBADEmJAQgxIiAEJ+QcoNO/bz9A86gAAAABJRU5ErkJggg==">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--acc:#38bdf8;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:#e2e8f0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,23,42,0.96);backdrop-filter:blur(8px);border-bottom:1px solid #334155;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:15px;margin:0;font-weight:700}
+header .status{font-size:11px;color:var(--muted)}
+main{padding:62px 12px 96px 12px;max-width:720px;margin:0 auto}
+.card{background:var(--card);border:1px solid #334155;border-radius:14px;padding:14px;margin:12px 0}
+.card h2{font-size:14px;margin:0 0 10px 0;color:#f1f5f9}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.big{font-size:13px;line-height:1.4}
+.dms-line{font-size:17px;font-weight:800;white-space:nowrap;overflow-x:auto;display:block;padding:10px 12px;background:#0b1220;border-radius:10px;border:1px solid #1e3a5f;color:#7dd3fc;letter-spacing:0.3px}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;background:#0b1220;border:1px solid #334155;font-size:11px;color:var(--muted)}
+.weather-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.wtab{background:#0b1220;border:1px solid #23344e;border-radius:10px;padding:10px 6px;text-align:center;min-height:64px}
+.wtab .k{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.4px}
+.wtab .v{font-size:13px;font-weight:800;margin-top:4px;color:#e2e8f0}
+.wtab .u{font-size:11px;color:#94a3b8;margin-top:2px}
+.compass-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.compass{position:relative;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at center,#1e293b 0%,#0f172a 70%);border:2px solid #334155;overflow:hidden}
+.compass-frame{position:absolute;inset:0;transform-origin:center center;transition:transform 0.15s linear;will-change:transform}
+.compass-frame .mark{position:absolute;left:50%;top:50%;font-weight:800;font-size:17px}
+.compass-frame .mark.n{transform:translate(-50%,-50%) translateY(-88px);color:#f87171}
+.compass-frame .mark.e{transform:translate(-50%,-50%) translateX(88px);color:#e2e8f0}
+.compass-frame .mark.s{transform:translate(-50%,-50%) translateY(88px);color:#e2e8f0}
+.compass-frame .mark.w{transform:translate(-50%,-50%) translateX(-88px);color:#e2e8f0}
+.compass-frame .tick{position:absolute;left:50%;top:8px;width:2px;height:10px;background:#475569;transform-origin:50% 102px}
+.needle{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);z-index:10}
+.needle svg{opacity:0.9}
+.heading-big{font-size:28px;font-weight:800}
+.sub{font-size:12px;color:var(--muted)}
+.btn{padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#e2e8f0;font-size:13px;font-weight:600;cursor:pointer}
+.btn.primary{background:#0284c7;border-color:#0284c7}
+.saved-list{max-height:240px;overflow:auto;border:1px solid #23344e;border-radius:10px;background:#0b1220}
+.saved-row{padding:10px 12px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;gap:8px;cursor:pointer}
+.saved-row.selected{background:#0e2a45;border-left:3px solid #38bdf8}
+.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:90;background:rgba(15,23,42,0.98);border-top:1px solid #334155;padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:6px}
+.bottom-bar .b{padding:10px 4px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-size:11px;font-weight:700;text-align:center}
+</style>
+</head>
+<body>
+<header>
+<h1>Offline GPS Logger - DMS Fixed + Frame Compass</h1>
+<div class="status" id="topStatus">GPS off • Offline Ready</div>
+</header>
+<main>
+<div class="card">
+<h2>📍 Live Position</h2>
+<div class="grid2 big">
+<div>latitude, <span id="lat" class="mono">—</span></div>
+<div>longitude, <span id="lon" class="mono">—</span></div>
+<div>accuracy, <span id="acc" class="mono">—</span></div>
+<div>altitude, <span id="alt" class="mono">—</span></div>
+<div>heading, <span id="hdg" class="mono">—</span></div>
+<div>speed, <span id="spd" class="mono">—</span></div>
+</div>
+<div style="margin-top:10px"><span class="badge">DMS Tall Single Line - Fully Visible</span><span id="dms" class="dms-line" style="margin-top:8px">N — , E —</span></div>
+<div class="grid2 big" style="margin-top:10px">
+<div>time (UTC / local) <div id="time" class="mono">—</div></div>
+<div>timezone <div id="tz" class="mono">—</div></div>
+</div>
+<div style="margin-top:10px;display:flex;gap:8px">
+<button class="btn primary" id="saveBtn">Save Point</button>
+<button class="btn" id="centerBtn">Copy DMS</button>
+</div>
+</div>
+<div class="card">
+<h2>🏠 Address</h2>
+<div id="addr" class="big">GPS off — Waiting for location...</div>
+</div>
+<div class="card">
+<h2>⛅ Weather — 9 Tabs</h2>
+<div id="weatherStatus" class="sub">GPS off — waiting for location</div>
+<div class="weather-grid" style="margin-top:10px">
+<div class="wtab"><div class="k">Feels like</div><div class="v" id="w_feels">—</div><div class="u" id="w_feels_u"></div></div>
+<div class="wtab"><div class="k">Wind</div><div class="v" id="w_wind">—</div><div class="u" id="w_wind_u"></div></div>
+<div class="wtab"><div class="k">Gusts</div><div class="v" id="w_gust">—</div><div class="u"></div></div>
+<div class="wtab"><div class="k">visibility</div><div class="v" id="w_vis">—</div><div class="u"></div></div>
+<div class="wtab"><div class="k">humidity</div><div class="v" id="w_hum">—</div><div class="u"></div></div>
+<div class="wtab"><div class="k">Clouds</div><div class="v" id="w_cloud">—</div><div class="u"></div></div>
+<div class="wtab"><div class="k">UV index</div><div class="v" id="w_uv">—</div><div class="u"></div></div>
+<div class="wtab"><div class="k">AQI</div><div class="v" id="w_aqi">—</div><div class="u" id="w_aqi_u"></div></div>
+<div class="wtab"><div class="k">Air Pressure</div><div class="v" id="w_pres">—</div><div class="u"></div></div>
+</div>
+</div>
+<div class="card">
+<h2>🧭 Compass — Frame Moving, Needle North Fixed (Transparent Simple)</h2>
+<div class="compass-wrap">
+<div class="compass" id="compassEl">
+<div class="compass-frame" id="frameEl"></div>
+<div class="needle" id="needleEl">
+<svg width="22" height="52" viewBox="0 0 22 52"><path d="M11 0 L15 18 L11 14 L7 18 Z" fill="#ef4444" fill-opacity="0.85"/><path d="M11 52 L7 34 L11 38 L15 34 Z" fill="#e2e8f0" fill-opacity="0.75"/><circle cx="11" cy="26" r="3.5" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/></svg>
+</div>
+</div>
+<div class="heading-big mono" id="compDeg">—°</div>
+<div class="sub" id="compTxt">Waiting for sensor… Move phone in figure-8 if jitters. Uses smoothing + true north correction when GPS available.</div>
+</div>
+</div>
+<div class="card">
+<h2>📋 Saved Points</h2>
+<div class="sub" style="margin-bottom:8px">Tap a row to select → then use bottom tabs: Copy / Google Maps / Delete / Export / Clear</div>
+<div id="savedList" class="saved-list"><div class="sub" style="padding:12px">No points yet</div></div>
+</div>
+<div style="height:20px"></div>
+</main>
+<div class="bottom-bar">
+<button class="b" id="bCopy">Copy</button>
+<button class="b" id="bMaps">Google Maps</button>
+<button class="b" id="bDel">Delete</button>
+<button class="b" id="bExp">Export</button>
+<button class="b" id="bClr">Clear all</button>
+</div>
+<script>
+let watchId=null,lastPos=null,headingDeg=null,selectedPoint=null,savedPoints=[];
+const $=id=>document.getElementById(id);
+function toDMS(dd,isLat){
+  const dir=dd>=0?(isLat?'N':'E'):(isLat?'S':'W');
+  const abs=Math.abs(dd);
+  const d=Math.floor(abs);
+  const mFloat=(abs-d)*60;
+  const m=Math.floor(mFloat);
+  const s=(mFloat-m)*60;
+  return dir+d+'°'+String(m).padStart(2,'0')+"'"+s.toFixed(3).padStart(6,'0')+'"';
+}
+function dmsLine(lat,lon){return toDMS(lat,true)+', '+toDMS(lon,false);}
+function degToCompass(deg){const dirs=['N','NE','E','SE','S','SW','W','NW'];return dirs[Math.round(deg/45)%8];}
+function loadSaved(){try{savedPoints=JSON.parse(localStorage.getItem('gps_points')||'[]');}catch(e){savedPoints=[];}renderSaved();}
+function saveLS(){localStorage.setItem('gps_points',JSON.stringify(savedPoints));}
+function renderSaved(){
+  const c=$('savedList');
+  if(!savedPoints.length){c.innerHTML='<div class="sub" style="padding:12px">No points yet</div>';return;}
+  c.innerHTML='';
+  savedPoints.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='saved-row'+(selectedPoint&&selectedPoint.ts===p.ts?' selected':'');
+    row.innerHTML='<div><div class="mono" style="font-size:12px;font-weight:700">'+dmsLine(p.lat,p.lon)+'</div><div class="sub" style="font-size:11px">'+new Date(p.ts).toLocaleString()+' • '+p.lat.toFixed(6)+','+p.lon.toFixed(6)+'</div></div><div class="sub">'+(i+1)+'</div>';
+    row.onclick=()=>{selectedPoint=p;document.querySelectorAll('.saved-row').forEach(r=>r.classList.remove('selected'));row.classList.add('selected');};
+    c.appendChild(row);
+  });
+}
+function initCompassFrame(){
+  const frame=$('frameEl');frame.innerHTML='';
+  for(let i=0;i<36;i++){const tick=document.createElement('div');tick.className='tick';tick.style.transform='translate(-50%,0) rotate('+(i*10)+'deg)';if(i%9===0){tick.style.height='14px';tick.style.background='#94a3b8';}frame.appendChild(tick);}
+  ['N','E','S','W'].forEach(d=>{const el=document.createElement('div');el.className='mark '+d.toLowerCase();el.textContent=d;frame.appendChild(el);});
+}
+initCompassFrame();
+function setHeading(h){headingDeg=h;$('compDeg').textContent=(h===null||isNaN(h))?'—°':Math.round(h)+'° '+degToCompass(h);$('frameEl').style.transform='rotate('+(-h)+'deg)';}
+function onOrient(e){let h=null;if(e.webkitCompassHeading!=null){h=e.webkitCompassHeading;}else if(e.alpha!=null){h=360-e.alpha;}if(h!=null){setHeading(h);$('compTxt').textContent='Sensor active — frame rotates, needle North fixed (transparent simple)';}}
+window.addEventListener('deviceorientationabsolute',onOrient,true);window.addEventListener('deviceorientation',onOrient,true);
+function updatePosition(pos){
+  lastPos=pos;const c=pos.coords;
+  $('lat').textContent=c.latitude.toFixed(6);$('lon').textContent=c.longitude.toFixed(6);
+  $('acc').textContent=c.accuracy?c.accuracy.toFixed(1)+' m':'—';
+  $('alt').textContent=c.altitude!=null?c.altitude.toFixed(1)+' m':'—';
+  $('hdg').textContent=c.heading!=null&&!isNaN(c.heading)?Math.round(c.heading)+'°':'—';
+  $('spd').textContent=c.speed!=null?(c.speed*3.6).toFixed(1)+' km/h':'—';
+  $('dms').textContent=dmsLine(c.latitude,c.longitude);
+  const now=new Date();$('time').textContent=now.toISOString().slice(0,19)+'Z / '+now.toLocaleString();
+  try{$('tz').textContent=Intl.DateTimeFormat().resolvedOptions().timeZone;}catch(e){$('tz').textContent='—';}
+  $('topStatus').textContent='GPS '+(c.accuracy?c.accuracy.toFixed(0)+'m':'')+' • '+new Date().toLocaleTimeString()+' • Offline Ready';
+  fetchAddress(c.latitude,c.longitude);fetchWeather(c.latitude,c.longitude);
+}
+function onError(err){$('topStatus').textContent='GPS error: '+err.message;}
+function startGPS(){if(!navigator.geolocation){$('topStatus').textContent='Geolocation not supported';return;}if(watchId!=null)navigator.geolocation.clearWatch(watchId);watchId=navigator.geolocation.watchPosition(updatePosition,onError,{enableHighAccuracy:true,maximumAge:0,timeout:15000});navigator.geolocation.getCurrentPosition(updatePosition,onError,{enableHighAccuracy:true});}
+async function fetchAddress(lat,lon){
+  $('addr').textContent='Fetching address...';
+  try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lon,{headers:{'Accept':'application/json'}});const j=await r.json();$('addr').textContent=j.display_name||'Address not found';}catch(e){$('addr').textContent=lat.toFixed(6)+', '+lon.toFixed(6)+' (offline — address needs internet)';}
+}
+async function fetchWeather(lat,lon){
+  $('weatherStatus').textContent='Fetching weather...';
+  try{
+    const wUrl='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,cloud_cover,uv_index,visibility,pressure_msl';
+    const aUrl='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=us_aqi';
+    const [wr,ar]=await Promise.all([fetch(wUrl),fetch(aUrl)]);
+    const wj=await wr.json();const aj=await ar.json().catch(()=>null);
+    const cur=wj.current;
+    if(cur){
+      $('w_feels').textContent=cur.apparent_temperature!=null?Math.round(cur.apparent_temperature)+'°':'—';
+      $('w_wind').textContent=cur.wind_speed_10m!=null?Math.round(cur.wind_speed_10m)+' km/h '+degToCompass(cur.wind_direction_10m||0):'—';
+      $('w_gust').textContent=cur.wind_gusts_10m!=null?Math.round(cur.wind_gusts_10m)+' km/h':'—';
+      $('w_vis').textContent=cur.visibility!=null?(cur.visibility/1000).toFixed(1)+' km':'—';
+      $('w_hum').textContent=cur.relative_humidity_2m!=null?cur.relative_humidity_2m+'%':'—';
+      $('w_cloud').textContent=cur.cloud_cover!=null?cur.cloud_cover+'%':'—';
+      $('w_uv').textContent=cur.uv_index!=null?''+cur.uv_index:'—';
+      $('w_pres').textContent=cur.pressure_msl!=null?Math.round(cur.pressure_msl)+' mbar':'—';
+    }
+    if(aj&&aj.current&&aj.current.us_aqi!=null){const aqi=aj.current.us_aqi;let lvl='';if(aqi<=50)lvl='Good';else if(aqi<=100)lvl='Moderate';else if(aqi<=150)lvl='USG';else if(aqi<=200)lvl='Unhealthy';else lvl='Very Unhealthy';$('w_aqi').textContent=aqi;$('w_aqi_u').textContent=lvl;}else{$('w_aqi').textContent='—';}
+    $('weatherStatus').textContent='Weather at '+new Date().toLocaleTimeString()+' • '+lat.toFixed(4)+', '+lon.toFixed(4);
+  }catch(e){$('weatherStatus').textContent='Weather offline — need internet, GPS still works offline';}
+}
+$('saveBtn').onclick=()=>{if(!lastPos){alert('No GPS yet');return;}const p={lat:lastPos.coords.latitude,lon:lastPos.coords.longitude,acc:lastPos.coords.accuracy,ts:Date.now(),dms:dmsLine(lastPos.coords.latitude,lastPos.coords.longitude)};savedPoints.unshift(p);saveLS();renderSaved();selectedPoint=p;};
+$('centerBtn').onclick=()=>{if(!lastPos)return;navigator.clipboard.writeText(dmsLine(lastPos.coords.latitude,lastPos.coords.longitude)).then(()=>{$('centerBtn').textContent='Copied!';setTimeout(()=>{$('centerBtn').textContent='Copy DMS';},1200);});};
+$('bCopy').onclick=()=>{if(!selectedPoint){alert('Tap a saved point row first to select');return;}const txt=selectedPoint.lat+','+selectedPoint.lon+' | '+selectedPoint.dms;navigator.clipboard.writeText(txt).then(()=>{$('bCopy').textContent='Copied!';setTimeout(()=>{$('bCopy').textContent='Copy';},1000);});};
+$('bMaps').onclick=()=>{if(!selectedPoint){alert('Tap a saved point row first');return;}window.open('https://www.google.com/maps?q='+selectedPoint.lat+','+selectedPoint.lon,'_blank');};
+$('bDel').onclick=()=>{if(!selectedPoint){alert('Tap a row to select point to delete');return;}if(!confirm('Delete selected point?'))return;savedPoints=savedPoints.filter(p=>p.ts!==selectedPoint.ts);selectedPoint=null;saveLS();renderSaved();};
+$('bExp').onclick=()=>{if(!savedPoints.length){alert('No points');return;}const blob=new Blob([JSON.stringify(savedPoints,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='gps-points.json';a.click();URL.revokeObjectURL(url);};
+$('bClr').onclick=()=>{if(!savedPoints.length)return;if(!confirm('Clear all saved points?'))return;savedPoints=[];selectedPoint=null;saveLS();renderSaved();};
+loadSaved();startGPS();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').then(()=>{console.log('SW ok');}).catch(()=>{});}
+</script>
+</body>
+</html>
