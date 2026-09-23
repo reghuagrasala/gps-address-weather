@@ -44,7 +44,7 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 .tabs{display:flex;gap:6px;margin-bottom:10px;overflow-x:hidden}.wt{flex:1;min-width:0;padding:9px 5px;border-radius:9px;background:#07111a;border:1px solid #24506c;font-size:12px}.wt.active{background:#0a4771;border-color:#25bff2;color:#fff}
 .hourly{display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;padding-bottom:3px;scrollbar-width:none}.hourly::-webkit-scrollbar{display:none}.hour{min-width:73px;border:1px solid #17689b;border-radius:11px;padding:9px 5px;text-align:center}.hour strong{display:block;font-size:13px}.hour .hi{font-size:26px;margin:7px 0}.hour small{display:block;color:#b6c5d0;font-size:11px;line-height:1.45}
 .forecast{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.day{text-align:center;border:1px solid #17689b;border-radius:11px;padding:10px 4px}.day strong{font-size:13px}.day .fi{font-size:28px;margin:10px 0}.day small{color:#b6c5d0;font-size:11px;line-height:1.5}
-.compassFrame{border:1px solid #17689b;border-radius:13px;padding:12px;background:rgba(5,28,47,.72);display:flex;align-items:center;gap:14px}.compassSmall{width:92px;height:92px;flex:0 0 92px;border:2px solid #1aa8ef;border-radius:50%;position:relative;background:radial-gradient(circle,#0d3550,#031421 68%);display:grid;place-items:center}.needle{position:absolute;left:50%;top:10px;width:3px;height:34px;background:#ff4055;border-radius:3px;transform-origin:50% 36px;transition:transform .25s ease}.compassSmall .north{position:absolute;top:6px;font-size:12px;color:#ff4055;font-weight:800}.compassSmall .east{position:absolute;right:6px;font-size:11px}.compassSmall .south{position:absolute;bottom:6px;font-size:11px}.compassSmall .west{position:absolute;left:6px;font-size:11px}.compassRead{font-size:28px;font-weight:750}.compassDir{color:#b9cad5;margin-top:2px;font-size:14px}
+.compassFrame{border:1px solid #17689b;border-radius:13px;padding:12px;background:rgba(5,28,47,.72);display:flex;align-items:center;gap:14px}.compassSmall{width:92px;height:92px;flex:0 0 92px;border:2px solid #1aa8ef;border-radius:50%;position:relative;background:radial-gradient(circle,#0d3550,#031421 68%);display:grid;place-items:center}.needle{position:absolute;left:50%;top:50%;width:4px;height:37px;background:#ff4055;border-radius:4px;transform-origin:50% 100%;transform:translate(-2px,-100%) rotate(0deg);transition:transform .25s ease}.compassSmall .north{position:absolute;top:6px;font-size:12px;color:#ff4055;font-weight:800}.compassSmall .east{position:absolute;right:6px;font-size:11px}.compassSmall .south{position:absolute;bottom:6px;font-size:11px}.compassSmall .west{position:absolute;left:6px;font-size:11px}.compassRead{font-size:28px;font-weight:750}.compassDir{color:#b9cad5;margin-top:2px;font-size:14px}
 .nav{height:86px;flex:0 0 86px;border-top:1px solid #16435d;background:rgba(2,10,17,.98);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:20}
 .tab{background:none;color:#a9b5be;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px}.tab .ico{font-size:24px;line-height:1}.tab.active{color:#fff}.tab.active .ico{color:#22cfff;background:#063f69;border-radius:10px;padding:4px 12px}.tab.active span:last-child{color:#dff7ff}
 .notice{font-size:12px;color:#aebdca;line-height:1.5}.radarLink{display:block;text-align:center;margin-top:10px;color:#61dcff;text-decoration:none}
@@ -127,7 +127,7 @@ const s={lat:null,lon:null,acc:null,alt:null,speed:null,heading:null,time:null,a
 let watch=null,map=null,marker=null,radarMap=null;
 try{Object.assign(s,JSON.parse(localStorage.getItem('ml_state')||'{}'))}catch(e){}
 function save(){localStorage.setItem('ml_state',JSON.stringify(s))}
-function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('.content').scrollTop=0;if(p==='position')setTimeout(initMap,40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
+function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.querySelectorAll('.tab[data-page]').forEach(b=>b.classList.remove('active'));const activeTab=document.querySelector('.tab[data-page="'+p+'"]');if(activeTab)activeTab.classList.add('active');$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('.content').scrollTop=0;if(p==='position')setTimeout(initMap,40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
 document.querySelectorAll('.tab[data-page]').forEach(b=>b.onclick=()=>show(b.dataset.page));
 $('back').onclick=()=>history.back();
 function tm(t){return t?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'}):'—'}
@@ -140,17 +140,32 @@ function ui(){
  setText('pLat',lat+'° N');setText('pLon',lon+'° E');setText('pAcc',acc);setText('pAlt',s.alt!=null?s.alt.toFixed(0)+' m':'—');setText('pTime',s.time?new Date(s.time).toLocaleDateString()+' '+tm(s.time):'—');
  setText('gFix','Valid position');setText('gAcc',acc);setText('gLat',lat);setText('gLon',lon);setText('gAlt',s.alt!=null?s.alt.toFixed(0)+' m':'—');setText('gSpeed',s.speed!=null&&s.speed>=0?(s.speed*3.6).toFixed(1)+' km/h':'0.0 km/h');setText('gHeading',s.heading!=null?Math.round(s.heading)+'° '+dir(s.heading):'—');setText('gCompass',s.heading!=null?'● Available':'Tap header');
  setText('cDeg',s.heading!=null?Math.round(s.heading)+'°':'—°');setText('cDir',s.heading!=null?dir(s.heading):'Tap the compass in the header');setText('miniDeg',s.heading!=null?Math.round(s.heading)+'°':'N');
- setText('date',s.time?new Date(s.time).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}):'—');setText('time',tm(s.time));setText('tz',Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Kolkata');
+ setText('digipin',makeDIGIPIN(s.lat,s.lon));setText('date',s.time?new Date(s.time).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}):'—');setText('time',tm(s.time));setText('tz',Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Kolkata');
  if(map)updateMap();
- const n=document.querySelector('.needle');if(n&&s.heading!=null)n.style.transform='translateX(-1.5px) rotate('+s.heading+'deg)';
+ const n=document.querySelector('.needle');if(n&&s.heading!=null)n.style.transform='translate(-2px,-100%) rotate('+s.heading+'deg)';
 }
-function onPos(p){const c=p.coords;s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();save();ui();if(navigator.onLine){reverse();weather()}}
+function onPos(p){const c=p.coords;s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();save();ui();if(!map) setTimeout(initMap,40); if(navigator.onLine){reverse();weather()}}
 function start(){if(!navigator.geolocation){$('gpsStatus').textContent='● UNAVAILABLE';return}if(watch)navigator.geolocation.clearWatch(watch);navigator.geolocation.getCurrentPosition(onPos,()=>{$('gpsStatus').textContent='● WAITING'}, {enableHighAccuracy:true,maximumAge:0,timeout:15000});watch=navigator.geolocation.watchPosition(onPos,()=>{$('gpsStatus').textContent='● WAITING'}, {enableHighAccuracy:true,maximumAge:2000,timeout:20000})}
 function initMap(){if(s.lat==null||!window.L)return;if(!map){$('map').innerHTML='';map=L.map('map',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,dragging:true,attributionControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);marker=L.circleMarker([s.lat,s.lon],{radius:9,color:'#fff',weight:3,fillColor:'#1df08a',fillOpacity:1}).addTo(map)}updateMap()}
 function updateMap(){if(!map||s.lat==null)return;marker.setLatLng([s.lat,s.lon]);map.setView([s.lat,s.lon],map.getZoom()<12?15:map.getZoom(),{animate:false})}
 $('locate').onclick=()=>{if(map&&s.lat!=null)map.setView([s.lat,s.lon],16,{animate:false})};
 $('zoomIn').onclick=()=>map?.zoomIn();$('zoomOut').onclick=()=>map?.zoomOut();
 
+function makeDIGIPIN(lat,lon){
+ if(lat==null||lon==null)return '—';
+ if(lat<2.5||lat>38.5||lon<63.5||lon>99.5)return 'Outside India grid';
+ const grid=[['F','C','9','8'],['J','3','2','7'],['K','4','5','6'],['L','M','P','T']];
+ let south=2.5,north=38.5,west=63.5,east=99.5,out='';
+ for(let i=0;i<10;i++){
+  const h=(north-south)/4,w=(east-west)/4;
+  let row=Math.floor((north-lat)/h),col=Math.floor((lon-west)/w);
+  row=Math.max(0,Math.min(3,row));col=Math.max(0,Math.min(3,col));
+  out+=grid[row][col];
+  const ns=north-row*h; const ss=ns-h; const ew=west+col*w; const ww=ew+w;
+  north=ns;south=ss;west=ew;east=ww;
+ }
+ return out;
+}
 function findDistrict(d){const a=d.localityInfo?.administrative||[];const hit=a.find(x=>/district/i.test((x.name||'')+' '+(x.description||'')));return hit?.name||a.find(x=>x.order===3)?.name||d.principalSubdivision||'—'}
 function formatAddress(d){const road=d.localityInfo?.informative?.find(x=>/road|street/i.test(x.description||''))?.name||d.localityInfo?.informative?.find(x=>/road|street/i.test(x.name||''))?.name||'';const house=d.localityInfo?.informative?.find(x=>/house|building/i.test(x.description||''))?.name||'';const arr=[house,road,d.locality,d.city,d.principalSubdivision,d.postcode,d.countryName].filter(Boolean);return [...new Set(arr)].join(', ')}
 async function reverse(){
@@ -191,7 +206,7 @@ document.querySelectorAll('.wt').forEach(b=>b.onclick=()=>{document.querySelecto
 function initRadar(){if(!window.L||s.lat==null||radarMap)return;radarMap=L.map('radarMap',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,attributionControl:true}).setView([s.lat,s.lon],9);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(radarMap);L.circleMarker([s.lat,s.lon],{radius:7,color:'#fff',weight:2,fillColor:'#1df08a',fillOpacity:1}).addTo(radarMap)}
 $('refreshAddress').onclick=reverse;$('refreshWeather').onclick=weather;$('fresh').onclick=start;
 $('copyAddress').onclick=()=>navigator.clipboard?.writeText(s.address||'');$('copyPosition').onclick=()=>navigator.clipboard?.writeText(s.lat!=null?s.lat.toFixed(6)+', '+s.lon.toFixed(6):'');
-$('share').onclick=()=>{if(s.lat==null)return;const u='https://maps.google.com/?q='+s.lat+','+s.lon;navigator.share?navigator.share({title:'My Location',text:s.lat+', '+s.lon,url:u}):navigator.clipboard?.writeText(u)};
+$('share').onclick=()=>{if(s.lat==null)return;const u='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.lat+','+s.lon);navigator.share?navigator.share({title:'My Location',text:s.lat+', '+s.lon,url:u}):navigator.clipboard?.writeText(u)};
 let orientAdded=false;
 async function enableCompass(){
  try{
