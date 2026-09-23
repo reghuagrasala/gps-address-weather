@@ -234,7 +234,7 @@ $('compassBtn').onclick=enableCompass;
 
 try{const a=localStorage.getItem('ml_address');if(a){s.address=a;$('fullAddress').textContent=a;$('aStatus').textContent='CACHED'}}catch(e){}
 try{const x=JSON.parse(localStorage.getItem('ml_weather')||'null');if(x){s.weather=x.weather||x;s.aq=x.aq||null}}catch(e){}
-if(s.weather)renderWeather();show('home');ui();start();if(s.lat!=null){setTimeout(initMap,300);if(navigator.onLine){reverse();weather()}}
+if(s.weather)renderWeather();show('home');if(s.lat!=null){setTimeout(initMap,300);if(navigator.onLine){reverse();weather()}}
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 })();
