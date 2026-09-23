@@ -150,7 +150,7 @@ button{font:inherit;color:inherit;border:0}
   if(p==='position') setTimeout(initMap,30);
  }
  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
- $('back').onclick=()=>history.back();
+ document.querySelector('.back').onclick=()=>history.back();
  function fmtTime(ts){return ts?new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',second:'2-digit'}).format(new Date(ts)):'—'}
  function saveGPS(){localStorage.setItem('ml_gps',JSON.stringify(state))}
  function loadGPS(){try{const x=JSON.parse(localStorage.getItem('ml_gps'));if(x&&x.lat)Object.assign(state,x)}catch(e){}}
