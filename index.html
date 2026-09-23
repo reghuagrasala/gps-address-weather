@@ -1,1 +1,13 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07152b"><title>My Location Info</title><link rel="stylesheet" href="css/home.css"></head><body><main><div class="top"><div class="brand">My Location Info</div><div class="round">ⓘ</div></div><section class="hero"><div class="globe"><div class="pin"></div></div><h1>My Location Info</h1><p>GPS works offline</p></section><nav class="cards"><a class="card" href="pages/position.html"><b>⌖ Position</b><span>Coordinates & location</span></a><a class="card" href="pages/gps.html"><b>◎ GPS Data</b><span>Live GPS information</span></a><a class="card" href="pages/address.html"><b>⌂ Address</b><span>Location address</span></a><a class="card" href="pages/weather.html"><b>☁ Weather</b><span>Current conditions</span></a></nav><div class="footer">Explore Your World</div></main></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07152b"><title>My Location Info</title><link rel="stylesheet" href="css/home.css"></head><body><main><div class="top"><div class="brand">My Location Info</div><div class="round">ⓘ</div></div><div class="homeStates"><button id="homeGps" class="homeState green" type="button"><span>GPS</span><b>ON</b></button><button id="homeData" class="homeState green" type="button"><span>DATA</span><b>ON</b></button></div><section class="hero"><div class="globe"><div class="pin"></div></div><h1>My Location Info</h1><p>GPS works offline</p></section><nav class="cards"><a class="card" href="pages/position.html"><b>⌖ Position</b></a><a class="card" href="pages/gps.html"><b>◎ GPS Data</b></a><a class="card" href="pages/address.html"><b>⌂ Address</b></a><a class="card" href="pages/weather.html"><b>☁ Weather</b></a></nav><div class="footer">Explore Your World</div></main><script>
+(function(){
+ const g=document.getElementById("homeGps"),d=document.getElementById("homeData");
+ let go=localStorage.getItem("ml_gps_enabled")!=="0",do_=localStorage.getItem("ml_data_enabled")!=="0";
+ function draw(){
+  g.className="homeState "+(go?"green":"red");g.querySelector("b").textContent=go?"ON":"OFF";
+  d.className="homeState "+(do_?(navigator.onLine?"green":"yellow"):"red");d.querySelector("b").textContent=do_?(navigator.onLine?"ON":"WEAK"):"OFF";
+ }
+ g.onclick=()=>{go=!go;localStorage.setItem("ml_gps_enabled",go?"1":"0");draw()};
+ d.onclick=()=>{do_=!do_;localStorage.setItem("ml_data_enabled",do_?"1":"0");draw()};
+ addEventListener("online",draw);addEventListener("offline",draw);draw();
+})();
+</script></body></html>
