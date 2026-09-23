@@ -132,10 +132,44 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 const $=id=>document.getElementById(id), pages=['home','position','gps','address','weather'];
 const meta={home:['📍','My Location Info','Your location, GPS, address and weather'],position:['📍','Position','Where am I now?'],gps:['🛰️','GPS Data','How is it measured?'],address:['🗺️','Address','What place is this?'],weather:['🌤️','Weather',"What's happening here?"]};
 const s={lat:null,lon:null,acc:null,alt:null,speed:null,heading:null,time:null,address:'',parts:{},weather:null,aq:null};
+/* GPS-ONLY ENGINE: deliberately independent of address/weather/network. */
+let gpsEngineStarted=false;
+let gpsRetryTimer=null;
+function gpsEngineFix(p){
+  const c=p&&p.coords;
+  if(!c||typeof c.latitude!=='number'||typeof c.longitude!=='number'){gpsEngineError({code:2});return}
+  s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;
+  s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();
+  s.gpsSource='DEVICE';s.gpsOnline=!!navigator.onLine;
+  try{localStorage.setItem('ml_gps_fix',JSON.stringify({lat:s.lat,lon:s.lon,acc:s.acc,alt:s.alt,speed:s.speed,heading:s.heading,time:s.time}))}catch(e){}
+  $('gpsStatus').textContent=navigator.onLine?'● ACTIVE':'● OFFLINE GPS';
+  setText('gFix','Valid position');setText('gRequest','Success');setText('gPermission','GRANTED');
+  setText('gpsHelp',(navigator.onLine?'GPS fix received':'Offline GPS fix received')+' · Accuracy ± '+Math.round(s.acc||0)+' m');
+  save();ui();if(!map)setTimeout(initMap,40);
+}
+function gpsEngineError(e){
+  const code=e&&e.code;
+  if(code===1){$('gpsStatus').textContent='● DENIED';setText('gFix','Permission denied');setText('gRequest','Retry');setText('gpsHelp','Allow Location for this website in Safari.');return}
+  $('gpsStatus').textContent='● SEARCHING';setText('gFix','Waiting for GPS');setText('gRequest','Retrying…');
+  setText('gpsHelp','Waiting for the iPhone to provide a location fix…');
+  clearTimeout(gpsRetryTimer);gpsRetryTimer=setTimeout(startGPSEngine,3000);
+}
+function startGPSEngine(){
+  if(!navigator.geolocation){gpsEngineError({code:2});return}
+  clearTimeout(gpsRetryTimer);
+  if(window.__mlGpsWatch!=null){try{navigator.geolocation.clearWatch(window.__mlGpsWatch)}catch(e){}}
+  $('gpsStatus').textContent='● SEARCHING';setText('gFix','Waiting for GPS');setText('gRequest','In progress');
+  setText('gpsHelp','Requesting iPhone Location Services…');
+  navigator.geolocation.getCurrentPosition(gpsEngineFix,gpsEngineError,{enableHighAccuracy:true,maximumAge:0,timeout:15000});
+  window.__mlGpsWatch=navigator.geolocation.watchPosition(gpsEngineFix,gpsEngineError,{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+  gpsEngineStarted=true;
+}
+try{const q=JSON.parse(localStorage.getItem('ml_gps_fix')||'null');if(q&&typeof q.lat==='number'&&typeof q.lon==='number'){Object.assign(s,q);}}catch(e){}
+
 let watch=null,gpsRetry=null,map=null,marker=null,radarMap=null;
 try{Object.assign(s,JSON.parse(localStorage.getItem('ml_state')||'{}'))}catch(e){}
 function save(){localStorage.setItem('ml_state',JSON.stringify(s))}
-function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.body.classList.toggle('homeMode',p==='home');document.querySelector('.header').style.display=p==='home'?'none':'flex';document.querySelector('.nav').style.display=p==='home'?'none':'grid';document.querySelectorAll('.tab[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));if(p!=='home'){$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('back').textContent='‹';$('back').onclick=()=>show('home');$('compassBtn').style.visibility='visible';$('compassBtn').innerHTML='<div class="miniN"><span id="miniDeg">N</span></div>';$('compassBtn').onclick=enableCompass}$('.content').scrollTop=0;if(p==='position')setTimeout(()=>{if(watch===null)start();initMap()},40);if(p==='gps')setTimeout(()=>{checkPermission();if(watch===null)start()},40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
+function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.body.classList.toggle('homeMode',p==='home');document.querySelector('.header').style.display=p==='home'?'none':'flex';document.querySelector('.nav').style.display=p==='home'?'none':'grid';document.querySelectorAll('.tab[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));if(p!=='home'){$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('back').textContent='‹';$('back').onclick=()=>show('home');$('compassBtn').style.visibility='visible';$('compassBtn').innerHTML='<div class="miniN"><span id="miniDeg">N</span></div>';$('compassBtn').onclick=enableCompass}$('.content').scrollTop=0;if(p==='position')setTimeout(()=>{startGPSEngine();initMap()},40);if(p==='gps')setTimeout(()=>{checkPermission();startGPSEngine()},40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
 document.querySelectorAll('.homeCard[data-home]').forEach(b=>{b.addEventListener('click',e=>{e.preventDefault();show(b.dataset.home)})});
 document.querySelectorAll('.tab[data-page]').forEach(b=>{b.addEventListener('click',e=>{e.preventDefault();show(b.dataset.page)})});
 const homeTop=document.querySelector('.homeTop');
@@ -144,8 +178,8 @@ if(homeTop){
  if(hs)hs.addEventListener('click',()=>alert('Settings will be configured after GPS and data are completed.'));
  if(hi)hi.addEventListener('click',()=>alert('My Location Info\n\nOffline GPS • Position • GPS Data • Address • Weather'));
 }
-function onPos(p){const c=p.coords;if(!c||typeof c.latitude!=='number'||typeof c.longitude!=='number'){geoError({code:2});return}s.lat=c.latitude;s.lon=c.longitude;s.acc=Number.isFinite(c.accuracy)?c.accuracy:null;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();s.gpsSource='DEVICE';s.gpsOnline=!!navigator.onLine;$('gpsStatus').textContent=navigator.onLine?'● ACTIVE':'● OFFLINE GPS';setText('gFix','Valid position');setText('gRequest','Success');setText('gPermission','GRANTED');setText('gpsHelp',(navigator.onLine?'GPS fix received':'Offline GPS fix received')+' · Accuracy ± '+(Number.isFinite(c.accuracy)?Math.round(c.accuracy):'—')+' m');save();ui();if(!map)setTimeout(initMap,40);if(navigator.onLine){reverse();weather()}}
-function geoError(e){const code=e?.code;const m=code===1?'Location permission denied. Allow Location for this website in Safari.':code===2?'Location unavailable. Turn on iPhone Location Services and Safari location access.':code===3?'GPS request timed out after 20 seconds. Tap Request GPS again outdoors or near a window.':'Unable to obtain the device location.';if(s.lat!=null&&code!==1){$('gpsStatus').textContent=navigator.onLine?'● ACTIVE':'● OFFLINE GPS';setText('gFix','Last valid position');setText('gRequest',code===3?'Retrying…':'Retry');setText('gpsHelp',navigator.onLine?'GPS is retaining the last valid fix and waiting for an update.':'Offline GPS is retaining the last valid fix.');}else{$('gpsStatus').textContent=code===1?'● DENIED':'● SEARCHING';setText('gFix',code===1?'Permission denied':code===2?'Unavailable':'Waiting for GPS');setText('gRequest',code===1?'Retry':'Retrying…');setText('homeGps',m);setText('homeSummary',m);setText('homeMapBadge','GPS not available');setText('gpsHelp',m);setText('mapInfo',m)}if(code!==1){clearTimeout(gpsRetry);gpsRetry=setTimeout(()=>{if(watch===null||code===2||code===3)start()},3000)}checkPermission()}
+function onPos(p){gpsEngineFix(p)}
+function geoError(e){gpsEngineError(e)}
 async function checkPermission(){if(!navigator.permissions||!navigator.permissions.query){setText('gPermission','Browser-managed');return}try{const p=await navigator.permissions.query({name:'geolocation'});setText('gPermission',p.state.toUpperCase())}catch(e){setText('gPermission','Browser-managed')}}
 function start(){if(!navigator.geolocation){geoError({code:2});return}clearTimeout(gpsRetry);if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;$('gpsStatus').textContent='● SEARCHING';setText('gFix','Searching…');setText('gRequest','In progress');setText('gpsHelp',navigator.onLine?'Requesting a fresh device location. Keep this page open…':'Requesting an offline device location. Keep this page open…');checkPermission();const first={enableHighAccuracy:true,maximumAge:0,timeout:20000};const follow={enableHighAccuracy:true,maximumAge:2000,timeout:20000};navigator.geolocation.getCurrentPosition(onPos,geoError,first);watch=navigator.geolocation.watchPosition(onPos,geoError,follow)}
 function initMap(){if(s.lat==null||!window.L)return;if(!map){$('map').innerHTML='';map=L.map('map',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,dragging:true,attributionControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);marker=L.circleMarker([s.lat,s.lon],{radius:9,color:'#fff',weight:3,fillColor:'#1df08a',fillOpacity:1}).addTo(map)}updateMap()}
@@ -209,7 +243,7 @@ function renderDaily(){
 }
 document.querySelectorAll('.wt').forEach(b=>b.onclick=()=>{document.querySelectorAll('.wt').forEach(x=>x.classList.toggle('active',x===b));['now','hourly','daily','radar'].forEach(x=>{$('w'+x[0].toUpperCase()+x.slice(1)).style.display=b.dataset.wtab===x?'block':'none'});if(b.dataset.wtab==='radar')setTimeout(initRadar,50)});
 function initRadar(){if(!window.L||s.lat==null||radarMap)return;radarMap=L.map('radarMap',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,attributionControl:true}).setView([s.lat,s.lon],9);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(radarMap);L.circleMarker([s.lat,s.lon],{radius:7,color:'#fff',weight:2,fillColor:'#1df08a',fillOpacity:1}).addTo(radarMap)}
-$('refreshAddress').onclick=reverse;$('refreshWeather').onclick=weather;$('fresh').onclick=()=>start();checkPermission();
+$('refreshAddress').onclick=reverse;$('refreshWeather').onclick=weather;$('fresh').onclick=()=>startGPSEngine();checkPermission();
 $('copyAddress').onclick=()=>navigator.clipboard?.writeText(s.address||'');$('copyPosition').onclick=()=>navigator.clipboard?.writeText(s.lat!=null?s.lat.toFixed(6)+', '+s.lon.toFixed(6):'');
 $('share').onclick=()=>{if(s.lat==null)return;const u='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.lat+','+s.lon);navigator.share?navigator.share({title:'My Location',text:s.lat+', '+s.lon,url:u}):navigator.clipboard?.writeText(u)};
 let orientAdded=false;
