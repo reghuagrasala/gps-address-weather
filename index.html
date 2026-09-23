@@ -3,219 +3,137 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#061321">
 <title>My Location Info</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#000;--card:#151515;--line:#303034;--text:#f1f1f1;--muted:#aaa7a3;--yellow:#f2c33f;--green:#8bc994;--green-bg:#001b05;--nav:#000}
+:root{--bg:#030b14;--panel:#061a2b;--panel2:#09233a;--line:#1670ad;--cyan:#27d8ff;--blue:#168fff;--yellow:#ffe044;--text:#f3f7fb;--muted:#aebdca;--green:#67ef80;--red:#ff6478}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#app{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;overflow:hidden}
+html,body,#app{width:100%;height:100%;margin:0;background:#020912;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;overflow:hidden}
 body{overscroll-behavior:none;touch-action:pan-y}
-button{font:inherit;color:inherit;border:0}
-.app{height:100%;display:flex;flex-direction:column;max-width:900px;margin:auto}
-.header{height:132px;flex:0 0 132px;border-bottom:2px solid #29292c;padding:42px 34px 14px;position:relative;text-align:center;background:#000}
-.header h1{font-size:39px;line-height:1.05;margin:2px 50px 10px;font-weight:700;letter-spacing:-.6px}
-.header p{margin:0;font-size:25px;color:#aaa7a3;line-height:1.15}
-.back{position:absolute;left:57px;bottom:54px;background:none;color:var(--yellow);font-size:60px;line-height:35px;width:45px;height:45px}
-.back span{display:block;transform:translateY(-3px)}
-.compass{position:absolute;right:57px;bottom:45px;width:86px;height:86px;border:2px solid #424247;border-radius:50%;display:grid;place-items:center;background:#050505;cursor:pointer}
-.compass .n{font-weight:700;font-size:24px;color:var(--yellow)}
-.compass .needle{position:absolute;width:3px;height:32px;background:var(--yellow);border-radius:3px;top:12px;left:40px;transform-origin:50% 31px;opacity:.0}
-.content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 34px 120px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
-.page{display:none;padding-top:30px}.page.active{display:block}
-.card{background:var(--card);border:2px solid var(--line);border-radius:45px;padding:34px 34px 32px;margin:0 0 24px}
-.card h2{font-size:31px;color:var(--yellow);margin:0 0 28px;font-weight:700;letter-spacing:-.3px}
-.status{float:right;background:var(--green-bg);color:var(--green);font-weight:700;border-radius:28px;padding:14px 22px;font-size:20px;letter-spacing:.4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;column-gap:34px}
-.metric{padding:0 0 19px;margin:0 0 20px;border-bottom:2px solid var(--line);min-width:0}
-.metric label{display:block;color:var(--muted);font-size:22px;margin-bottom:11px}
-.metric strong{display:block;font-size:31px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.copyline{font-size:31px;margin:0 0 38px;letter-spacing:.2px}
-.primary{background:var(--yellow);color:#f7f7f7;border-radius:27px;padding:20px 29px;font-size:25px;cursor:pointer}
-.secondary{background:#000;border:1px solid #000;color:#eee;border-radius:27px;padding:20px 29px;font-size:25px;cursor:pointer}
-.button-row{display:flex;gap:20px;flex-wrap:wrap}
-.large-temp{font-size:92px;font-weight:700;line-height:.9;margin:4px 0 22px}
-.condition{font-size:33px;color:var(--green);display:flex;align-items:center;gap:15px;margin-bottom:40px}
-.condition span:first-child{font-size:42px}
-.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 18px}
-.weather-grid .metric{margin-bottom:25px}
-.forecast{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
-.forecast strong{font-size:25px}.forecast .icon{font-size:42px;margin:25px 0}.forecast div:last-child{font-size:22px;color:var(--muted)}
-.note{color:var(--muted);font-size:25px;line-height:1.55;margin:0 0 28px}
-.home-map{height:330px;border:2px solid var(--line);border-radius:38px;overflow:hidden;margin-bottom:24px;background:#101413;position:relative}
+button{font:inherit;border:0;color:inherit}
+.app{height:100%;max-width:520px;margin:auto;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 0,#0b2841 0,#03101c 38%,#020912 100%);overflow:hidden}
+.header{height:124px;flex:0 0 124px;position:relative;padding:46px 58px 12px;text-align:center;border-bottom:1px solid #12425f}
+.header h1{font-size:25px;line-height:1.1;margin:8px 0 5px;font-weight:700}
+.header p{font-size:15px;color:#c0ccd6;margin:0}
+.back,.menu{position:absolute;top:48px;width:42px;height:42px;border-radius:50%;background:#092b49;font-size:30px;display:grid;place-items:center}
+.back{left:17px}.menu{right:17px;font-size:25px}
+.hero-icon{font-size:38px;vertical-align:-5px;margin-right:7px}
+.content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:18px 12px 104px;-webkit-overflow-scrolling:touch}
+.page{display:none}.page.active{display:block}
+.card{background:linear-gradient(145deg,rgba(7,34,56,.98),rgba(4,20,34,.98));border:1.5px solid #1686cf;border-radius:18px;padding:17px 16px;margin-bottom:12px;box-shadow:inset 0 0 18px rgba(22,143,255,.05)}
+.card h2{margin:0 0 13px;color:#fff;font-size:20px}.yellow{color:var(--yellow)}
+.status{float:right;color:var(--green);font-size:13px;border:1px solid #168b64;background:#062b20;border-radius:20px;padding:6px 10px;font-weight:700}
+.map{height:435px;border-radius:15px;overflow:hidden;border:1px solid #1686cf;margin-bottom:12px;position:relative;background:#0a1722}
 #map{width:100%;height:100%}
-.map-overlay{position:absolute;left:22px;top:18px;z-index:500;background:rgba(0,0,0,.65);border-radius:18px;padding:10px 14px;pointer-events:none}
-.map-overlay strong{font-size:20px}.map-overlay span{display:block;color:#9ad39f;font-size:16px;margin-top:2px}
-.map-fallback{height:100%;display:grid;place-items:center;color:#777;font-size:18px;background:radial-gradient(circle at 55% 42%,#294a41 0 3%,transparent 4%),linear-gradient(150deg,#1a211f,#0e1110)}
-.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.home-card{background:var(--card);border:2px solid var(--line);border-radius:30px;padding:22px}
-.home-card label{display:block;color:var(--muted);font-size:19px;margin-bottom:9px}.home-card strong{font-size:25px}
-.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(900px,100%);height:103px;background:#000;border-top:2px solid #29292c;display:grid;grid-template-columns:repeat(4,1fr);z-index:1000;padding-bottom:env(safe-area-inset-bottom)}
-.tab{background:none;color:#8e8b88;font-size:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer}
-.tab .ico{font-size:31px;line-height:1}.tab.active{color:#ddd}.tab.active .ico{color:#fff}
-.small-title{font-size:22px;color:var(--yellow);font-weight:700;margin:0 0 12px}
-.clear{clear:both}
-@media(max-width:600px){
- .header{height:132px;padding-top:42px}.header h1{font-size:39px}.header p{font-size:25px}
- .content{padding-left:34px;padding-right:34px}
- .back{left:57px}.compass{right:57px}
- .card{padding:32px 34px;border-radius:43px}
-}
-@media(max-width:390px){
- .header h1{font-size:34px}.header p{font-size:21px}.back{left:28px}.compass{right:28px;width:74px;height:74px}.compass .n{font-size:21px}
- .content{padding-left:20px;padding-right:20px}.card{padding:25px 24px;border-radius:32px}.grid2{gap:0 18px}.metric label{font-size:18px}.metric strong{font-size:25px}.card h2{font-size:27px}.home-card strong{font-size:21px}.bottom{height:94px}
-}
+.map-info{position:absolute;z-index:500;left:10px;top:10px;background:rgba(2,12,20,.78);border:1px solid #1c6c9d;border-radius:10px;padding:7px 10px;font-size:13px}
+.map-controls{position:absolute;z-index:500;right:9px;top:45px;display:flex;flex-direction:column;gap:6px}
+.map-controls button{width:39px;height:39px;background:#071b2d;border:1px solid #2d648a;border-radius:10px;font-size:25px}
+.grid2{display:grid;grid-template-columns:1fr 1fr}.metric{padding:10px 8px;border-bottom:1px solid #195274}.metric:nth-child(odd){border-right:1px solid #195274}.metric label{display:block;color:#b6c5d0;font-size:13px;margin-bottom:7px}.metric strong{font-size:19px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.grid3 .metric{border:1px solid #175e8e;border-radius:12px;padding:12px 9px}.grid3 .metric:nth-child(odd){border-right:1px solid #175e8e}
+.bigcoord{font-size:18px;line-height:1.8}
+.primary{background:linear-gradient(135deg,#148dff,#0062ce);border:1px solid #36baff;border-radius:12px;padding:12px 15px;font-size:15px;font-weight:600}
+.secondary{background:#07111a;border:1px solid #24506c;border-radius:12px;padding:12px 15px;font-size:15px}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}
+.greenbox{border:1px solid #168b64;background:#062a21;border-radius:12px;padding:12px;color:#bcebc7;font-size:13px}
+.address-main{display:flex;gap:12px;align-items:flex-start}.homepin{width:43px;height:43px;border-radius:50%;background:#1979cf;display:grid;place-items:center;font-size:24px;flex:0 0 43px}.address-main strong{font-size:15px;line-height:1.55}.copy{color:#5fdcff;cursor:pointer;float:right}
+.listrow{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #195274;font-size:14px}.listrow:last-child{border-bottom:0}
+.weather-main{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}.temp{font-size:57px;font-weight:700;color:#fff}.condition{font-size:17px}.weather-symbol{font-size:58px;text-align:center}
+.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wcard{border:1px solid #17689b;border-radius:13px;padding:12px;background:rgba(5,28,47,.8);min-height:77px}.wcard .wi{font-size:25px;float:left;margin-right:8px}.wcard label{font-size:12px;color:#b8c7d2;display:block}.wcard strong{font-size:17px;display:block;margin-top:5px}.forecast{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.day{text-align:center;border:1px solid #17689b;border-radius:12px;padding:12px 4px}.day strong{font-size:14px}.day .fi{font-size:30px;margin:13px 0}.day small{color:#b6c5d0;font-size:12px}
+.compass{width:225px;height:225px;margin:5px auto 13px;border:2px solid #1aa8ef;border-radius:50%;position:relative;background:radial-gradient(circle,#0d3550,#031421 68%);display:grid;place-items:center;box-shadow:0 0 25px rgba(0,170,255,.14)}
+.compass .degree{font-size:32px;font-weight:700}.compass .dir{font-size:17px;color:#b9cad5;margin-top:3px;text-align:center}.tick{position:absolute;left:50%;top:4px;width:2px;height:18px;background:#b9c8d3;transform-origin:50% 108px}.north{color:#ff4055!important;font-weight:700}
+.gpsinfo{font-size:13px;color:#bdcbd5;line-height:1.55}.nav{height:86px;flex:0 0 86px;border-top:1px solid #16435d;background:rgba(2,10,17,.98);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:20}
+.tab{background:none;color:#a9b5be;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px}.tab .ico{font-size:25px;line-height:1}.tab.active{color:#fff}.tab.active .ico{color:#22cfff;background:#063f69;border-radius:10px;padding:5px 13px}.tab.active span:last-child{color:#dff7ff}
+@media(max-width:380px){.header{height:116px;flex-basis:116px}.header h1{font-size:22px}.content{padding-left:9px;padding-right:9px}.map{height:385px}.compass{width:200px;height:200px}}
 </style>
 </head>
 <body>
 <div id="app" class="app">
-<header class="header">
-  <button class="back" aria-label="Back"><span>‹</span></button>
-  <h1 id="title">My Location Info</h1><p id="subtitle">GPS updates offline</p>
-  <button class="compass" id="compassBtn" aria-label="Compass"><span class="n">N</span><i class="needle"></i></button>
-</header>
+<header class="header"><button class="back" id="back">‹</button><div id="headerIcon" class="hero-icon">📍</div><h1 id="title" style="display:inline">Position</h1><button class="menu">⋮</button><p id="subtitle">Where am I now?</p></header>
 <main class="content">
+
 <section id="position" class="page active">
-  <div class="home-map"><div id="map"><div class="map-fallback">Waiting for device GPS…</div></div><div class="map-overlay"><strong id="mapPlace">Location</strong><span id="mapTime">GPS waiting</span></div></div>
-  <div class="home-cards">
-    <div class="home-card"><label>Position</label><strong id="homePos">—</strong></div>
-    <div class="home-card"><label>GPS Data</label><strong id="homeAcc">—</strong></div>
-    <div class="home-card"><label>Address</label><strong id="homeAddr">Offline / waiting</strong></div>
-    <div class="home-card"><label>Weather</label><strong id="homeWeather">—</strong></div>
-  </div>
+<div class="map"><div id="map"><div style="display:grid;place-items:center;height:100%;color:#9fb1bf">Waiting for GPS…</div></div><div class="map-info" id="mapInfo">GPS waiting</div><div class="map-controls"><button id="locate">⌾</button><button id="zoomIn">+</button><button id="zoomOut">−</button></div></div>
+<div class="card"><div class="grid2">
+<div class="metric"><label>Latitude</label><strong id="pLat">—</strong></div><div class="metric"><label>Longitude</label><strong id="pLon">—</strong></div>
+<div class="metric"><label>Accuracy</label><strong id="pAcc">—</strong></div><div class="metric"><label>Elevation</label><strong id="pAlt">—</strong></div>
+<div class="metric"><label>Last Updated</label><strong id="pTime">—</strong></div><div class="metric"><label>Position Source</label><strong>GPS (Device)</strong></div>
+</div></div>
+<div class="row"><button class="primary" id="share">↗ Share My Location</button><button class="secondary" id="copyPosition">Copy</button></div>
+<div class="greenbox" style="margin-top:10px">● GPS Active &nbsp; Works offline. No internet required for coordinates.</div>
 </section>
 
 <section id="gps" class="page">
- <div class="card">
-  <h2>Current position <span class="status">LIVE GPS</span></h2><div class="clear"></div>
-  <div class="grid2">
-   <div class="metric"><label>Latitude</label><strong id="lat">—</strong></div><div class="metric"><label>Longitude</label><strong id="lon">—</strong></div>
-   <div class="metric"><label>Altitude</label><strong id="alt">—</strong></div><div class="metric"><label>Accuracy</label><strong id="acc">—</strong></div>
-   <div class="metric"><label>Speed</label><strong id="speed">—</strong></div><div class="metric"><label>Heading</label><strong id="heading">—</strong></div>
-   <div class="metric"><label>Updated</label><strong id="updated">—</strong></div><div class="metric"><label>Source</label><strong>Device GPS</strong></div>
-  </div>
- </div>
- <div class="card"><h2>Coordinates</h2><p class="copyline" id="coords">—</p><button class="primary" id="copyCoords">Copy coordinates</button></div>
- <div class="card"><h2>GPS behaviour</h2><p class="note">High-accuracy getCurrentPosition starts immediately and watchPosition keeps updating while travelling. Internet is not required for coordinates.</p><button class="primary" id="freshGPS">Request fresh GPS</button></div>
- <div class="card"><h2>Mini compass</h2><p class="note">The compass stays in the header. Tap the small N control above to activate device orientation.</p></div>
+<div class="card"><h2>GPS Status <span class="status">● Active</span></h2><div class="grid2">
+<div class="metric"><label>Location Fix</label><strong id="gFix">Waiting</strong></div><div class="metric"><label>Accuracy</label><strong id="gAcc">—</strong></div>
+<div class="metric"><label>Latitude</label><strong id="gLat">—</strong></div><div class="metric"><label>Longitude</label><strong id="gLon">—</strong></div>
+<div class="metric"><label>Elevation</label><strong id="gAlt">—</strong></div><div class="metric"><label>Speed</label><strong id="gSpeed">—</strong></div>
+<div class="metric"><label>Heading</label><strong id="gHeading">—</strong></div><div class="metric"><label>Compass</label><strong id="gCompass">—</strong></div>
+</div></div>
+<div class="card"><h2>Mini compass</h2><div class="compass" id="compass"><div><div class="degree" id="cDeg">—°</div><div class="dir" id="cDir">Tap N in header to activate</div></div><span class="north" style="position:absolute;top:10px;font-size:18px">N</span><span style="position:absolute;right:13px;font-size:18px">E</span><span style="position:absolute;bottom:10px;font-size:18px">S</span><span style="position:absolute;left:13px;font-size:18px">W</span></div><p class="gpsinfo">High-accuracy browser GPS starts immediately and watchPosition keeps updating while travelling. Internet is not required for device coordinates.</p><button class="primary" id="fresh">Request fresh GPS</button></div>
+<div class="card"><div class="listrow"><span>📅 Date</span><strong id="date">—</strong></div><div class="listrow"><span>◷ Time</span><strong id="time">—</strong></div><div class="listrow"><span>🌐 Time Zone</span><strong id="tz">Asia/Kolkata</strong></div><div class="listrow"><span>▣ Device</span><strong>Safari / iOS</strong></div><div class="listrow"><span>⌖ Position Source</span><strong>GPS (Device)</strong></div></div>
+<div class="greenbox">⊕ GPS works offline. No internet required.</div>
 </section>
 
 <section id="address" class="page">
- <div class="card">
-  <h2>Current address <span id="addrStatus" class="status">OFFLINE</span></h2><div class="clear"></div>
-  <p class="copyline" id="addressText">No address yet</p>
-  <p class="note" id="addressTime">Waiting for an online lookup or cached result.</p>
-  <div class="button-row"><button class="primary" id="refreshAddress">Refresh address</button><button class="secondary" id="copyAddress">Copy address</button></div>
- </div>
+<div class="card"><h2>Current address <span id="aStatus" class="status">OFFLINE</span></h2><div class="address-main"><div class="homepin">⌂</div><div><strong id="fullAddress">Waiting for online lookup…</strong><div style="margin-top:8px;color:#9fb0bd;font-size:12px" id="aTime">No successful lookup yet</div></div></div><div class="row" style="margin-top:14px"><button class="primary" id="refreshAddress">Refresh address</button><button class="secondary" id="copyAddress">Copy address</button></div></div>
+<div class="card"><div class="listrow"><span>Locality</span><strong id="locality">—</strong></div><div class="listrow"><span>City / Town</span><strong id="city">—</strong></div><div class="listrow"><span>District</span><strong id="district">—</strong></div><div class="listrow"><span>State</span><strong id="state">—</strong></div><div class="listrow"><span>PIN Code</span><strong id="pin">—</strong></div><div class="listrow"><span>Country</span><strong id="country">—</strong></div></div>
+<div class="card"><div class="listrow"><span>Plus Code</span><strong id="plus">—</strong></div><div class="listrow"><span>DIGIPIN</span><strong id="digipin">—</strong></div></div>
+<div class="card"><h2>Nearby places</h2><div id="nearby"><div class="listrow"><span>● Current locality</span><strong>From address lookup</strong></div></div></div>
+<div class="greenbox">⌁ Address information requires internet and uses a secure location service. The last successful result is kept for offline viewing.</div>
 </section>
 
 <section id="weather" class="page">
- <div class="card">
-  <h2>Current weather <span id="weatherStatus" class="status">OFFLINE</span></h2><div class="clear"></div>
-  <div class="large-temp" id="temp">—</div>
-  <div class="condition"><span id="weatherIcon">☁️</span><span id="condition">Waiting for weather</span></div>
-  <div class="weather-grid">
-   <div class="metric"><label>Feels like</label><strong id="feels">—</strong></div><div class="metric"><label>Humidity</label><strong id="humidity">—</strong></div><div class="metric"><label>Cloud</label><strong id="cloud">—</strong></div>
-   <div class="metric"><label>Wind</label><strong id="wind">—</strong></div><div class="metric"><label>Wind dir</label><strong id="winddir">—</strong></div><div class="metric"><label>Rain</label><strong id="rain">—</strong></div>
-  </div>
-  <button class="primary" id="refreshWeather">Refresh weather</button>
- </div>
- <div class="card"><h2>Forecast</h2><div class="forecast" id="forecast"><div>—</div><div>—</div><div>—</div></div></div>
+<div class="card"><h2>Current weather <span id="wStatus" class="status">OFFLINE</span></h2>
+<div class="weather-main"><div><div class="temp" id="temp">—</div><div class="condition" id="condition">Waiting…</div></div><div class="weather-symbol" id="weatherIcon">☁️</div></div>
+<div class="grid2"><div class="metric"><label>Feels like</label><strong id="feels">—</strong></div><div class="metric"><label>Humidity</label><strong id="humidity">—</strong></div><div class="metric"><label>Wind</label><strong id="wind">—</strong></div><div class="metric"><label>Wind direction</label><strong id="winddir">—</strong></div><div class="metric"><label>Clouds</label><strong id="cloud">—</strong></div><div class="metric"><label>Rain</label><strong id="rain">—</strong></div></div>
+<div class="row" style="margin-top:12px"><button class="primary" id="refreshWeather">Refresh weather</button></div></div>
+<div class="card"><h2>Forecast</h2><div class="forecast" id="forecast"></div></div>
+<div class="card"><h2>Weather details</h2><div class="weather-grid">
+<div class="wcard"><span class="wi">🌡️</span><label>Temperature</label><strong id="dTemp">—</strong></div><div class="wcard"><span class="wi">💧</span><label>Humidity</label><strong id="dHum">—</strong></div>
+<div class="wcard"><span class="wi">💨</span><label>Wind</label><strong id="dWind">—</strong></div><div class="wcard"><span class="wi">☁️</span><label>Cloud cover</label><strong id="dCloud">—</strong></div>
+<div class="wcard"><span class="wi">☀️</span><label>UV / solar</label><strong id="dUv">—</strong></div><div class="wcard"><span class="wi">🌧️</span><label>Precipitation</label><strong id="dRain">—</strong></div>
+</div></div>
 </section>
 </main>
-<nav class="bottom">
- <button class="tab active" data-page="position"><span class="ico">⌖</span><span>Position</span></button>
- <button class="tab" data-page="gps"><span class="ico">◎</span><span>GPS</span></button>
- <button class="tab" data-page="address"><span class="ico">⌖</span><span>Address</span></button>
- <button class="tab" data-page="weather"><span class="ico">☁</span><span>Weather</span></button>
-</nav>
-</div>
+<nav class="nav">
+<button class="tab active" data-page="position"><span class="ico">📍</span><span>Position</span></button>
+<button class="tab" data-page="gps"><span class="ico">🛰️</span><span>GPS Data</span></button>
+<button class="tab" data-page="address"><span class="ico">🗺️</span><span>Address</span></button>
+<button class="tab" data-page="weather"><span class="ico">🌤️</span><span>Weather</span></button>
+</nav></div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-(()=> {
- const $=id=>document.getElementById(id), pages=['position','gps','address','weather'];
- const state={lat:null,lon:null,acc:null,alt:null,speed:null,heading:null,time:null,address:localStorage.getItem('ml_address')||'',weather:JSON.parse(localStorage.getItem('ml_weather')||'null')};
- let map=null,marker=null,watch=null,lastLookup=0,lastWeather=0;
- const pageMeta={
-  position:['My Location Info','GPS updates offline'],
-  gps:['Position','Current device position'],
-  address:['Address','Online lookup with offline last result'],
-  weather:['Weather','Current conditions and forecast']
- };
- function showPage(p){
-  pages.forEach(x=>$(x).classList.toggle('active',x===p));
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
-  $('title').textContent=pageMeta[p][0]; $('subtitle').textContent=pageMeta[p][1];
-  document.querySelector('.content').scrollTop=0;
-  if(p==='position') setTimeout(initMap,30);
- }
- document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
- document.querySelector('.back').onclick=()=>history.back();
- function fmtTime(ts){return ts?new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',second:'2-digit'}).format(new Date(ts)):'—'}
- function saveGPS(){localStorage.setItem('ml_gps',JSON.stringify(state))}
- function loadGPS(){try{const x=JSON.parse(localStorage.getItem('ml_gps'));if(x&&x.lat)Object.assign(state,x)}catch(e){}}
- loadGPS();
- function updateUI(){
-  const {lat,lon,acc,alt,speed,heading,time}=state;
-  $('homePos').textContent=lat!=null?lat.toFixed(4)+'°, '+lon.toFixed(4)+'°':'—';
-  $('homeAcc').textContent=acc!=null?'± '+Math.round(acc)+' m':'—';
-  $('lat').textContent=lat!=null?lat.toFixed(6)+'°':'—'; $('lon').textContent=lon!=null?lon.toFixed(6)+'°':'—';
-  $('alt').textContent=alt!=null?alt.toFixed(1)+' m':'—'; $('acc').textContent=acc!=null?'± '+Math.round(acc)+' m':'—';
-  $('speed').textContent=speed!=null&&speed>=0?(speed*3.6).toFixed(1)+' km/h':'—';
-  $('heading').textContent=heading!=null?Math.round(heading)+'°':'—'; $('updated').textContent=fmtTime(time);
-  $('coords').textContent=lat!=null?lat.toFixed(6)+', '+lon.toFixed(6):'—';
-  $('addressText').textContent=state.address||'No address yet'; $('homeAddr').textContent=state.address?state.address.split(',').slice(0,2).join(', '):'Offline / waiting';
-  if(state.time)$('mapTime').textContent=fmtTime(state.time);
-  if(state.lat!=null) updateMap();
-  if(state.weather) renderWeather(state.weather);
- }
- function onPos(pos){
-  const c=pos.coords; state.lat=c.latitude;state.lon=c.longitude;state.acc=c.accuracy;state.alt=c.altitude;state.speed=c.speed;state.heading=(c.heading!=null&&c.heading>=0)?c.heading:null;state.time=pos.timestamp||Date.now();saveGPS();updateUI();
-  if(navigator.onLine && Date.now()-lastLookup>120000){lastLookup=Date.now();reverseGeocode()}
-  if(navigator.onLine && Date.now()-lastWeather>120000){lastWeather=Date.now();getWeather()}
- }
- function onErr(e){console.log('GPS',e.message)}
- function startGPS(){if(!navigator.geolocation)return onErr({message:'Geolocation unavailable'});if(watch)navigator.geolocation.clearWatch(watch);navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:0,timeout:15000});watch=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:3000,timeout:20000})}
- $('freshGPS').onclick=()=>startGPS();
- function initMap(){
-  if(!state.lat)return;
-  if(!window.L){$('map').innerHTML='<div class="map-fallback">Map library unavailable — GPS is still active.</div>';return}
-  if(!map){$('map').innerHTML='';map=L.map('map',{zoomControl:false,attributionControl:true,dragging:true,touchZoom:false,doubleClickZoom:false,scrollWheelZoom:false,boxZoom:false,keyboard:false});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);marker=L.circleMarker([state.lat,state.lon],{radius:9,weight:3,color:'#8bc994',fillColor:'#8bc994',fillOpacity:.9}).addTo(map)}
-  updateMap()
- }
- function updateMap(){if(!map||state.lat==null)return;marker.setLatLng([state.lat,state.lon]);map.setView([state.lat,state.lon],15,{animate:false});$('mapPlace').textContent=state.address?state.address.split(',')[0]:'Current location'}
- async function reverseGeocode(){
-  if(state.lat==null||!navigator.onLine)return;
-  try{
-   $('addrStatus').textContent='ONLINE';
-   const u='https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+encodeURIComponent(state.lat)+'&longitude='+encodeURIComponent(state.lon)+'&localityLanguage=en';
-   const r=await fetch(u);if(!r.ok)throw Error('lookup');const d=await r.json();
-   const parts=[d.locality,d.city,d.principalSubdivision,d.countryName].filter(Boolean);state.address=[...new Set(parts)].join(', ')||'Address unavailable';
-   const now=new Date();localStorage.setItem('ml_address',state.address);$('addressTime').textContent='Last successful lookup: '+now.toLocaleDateString()+' '+now.toLocaleTimeString();$('addrStatus').textContent='ONLINE';updateUI()
-  }catch(e){$('addrStatus').textContent='OFFLINE'}
- }
- const wxText=c=>({0:['Clear sky','☀️'],1:['Mainly clear','🌤️'],2:['Partly cloudy','⛅'],3:['Overcast','☁️'],45:['Fog','🌫️'],48:['Rime fog','🌫️'],51:['Light drizzle','🌦️'],53:['Drizzle','🌦️'],55:['Heavy drizzle','🌧️'],61:['Light rain','🌧️'],63:['Rain','🌧️'],65:['Heavy rain','🌧️'],71:['Snow','❄️'],73:['Snow','❄️'],75:['Heavy snow','❄️'],80:['Rain showers','🌦️'],81:['Rain showers','🌧️'],82:['Heavy showers','🌧️'],95:['Thunderstorm','⛈️'],96:['Thunderstorm','⛈️'],99:['Thunderstorm','⛈️']})[c]||['Unknown','☁️'];
- async function getWeather(){
-  if(state.lat==null||!navigator.onLine)return;
-  try{
-   const u='https://api.open-meteo.com/v1/forecast?latitude='+state.lat+'&longitude='+state.lon+'&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_raining,rain,cloud_cover,wind_speed_10m,wind_direction_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto';
-   const r=await fetch(u);if(!r.ok)throw Error('weather');const d=await r.json();state.weather=d;localStorage.setItem('ml_weather',JSON.stringify(d));renderWeather(d)
-  }catch(e){$('weatherStatus').textContent='OFFLINE'}
- }
- function renderWeather(d){
-  const c=d.current||{}, w=wxText(c.weather_code);$('temp').textContent=c.temperature_2m!=null?Math.round(c.temperature_2m)+'°':'—';$('condition').textContent=w[0];$('weatherIcon').textContent=w[1];
-  $('feels').textContent=c.apparent_temperature!=null?Math.round(c.apparent_temperature)+'°':'—';$('humidity').textContent=c.relative_humidity_2m!=null?c.relative_humidity_2m+'%':'—';$('cloud').textContent=c.cloud_cover!=null?c.cloud_cover+'%':'—';$('wind').textContent=c.wind_speed_10m!=null?Math.round(c.wind_speed_10m)+' km/h':'—';$('winddir').textContent=c.wind_direction_10m!=null?Math.round(c.wind_direction_10m)+'°':'—';$('rain').textContent=c.rain!=null?c.rain+' mm':'—';$('weatherStatus').textContent='ONLINE';$('homeWeather').textContent=c.temperature_2m!=null?Math.round(c.temperature_2m)+'° • '+w[0]:'—';
-  if(d.daily){$('forecast').innerHTML=d.daily.time.map((t,i)=>{const day=new Date(t+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'});const wi=wxText(d.daily.weather_code[i]);return '<div><strong>'+day+'</strong><div class="icon">'+wi[1]+'</div><div>'+Math.round(d.daily.temperature_2m_max[i])+'° / '+Math.round(d.daily.temperature_2m_min[i])+'°</div></div>'}).join('')}
- }
- $('refreshAddress').onclick=reverseGeocode;$('copyAddress').onclick=()=>navigator.clipboard?.writeText(state.address||'No address yet');
- $('refreshWeather').onclick=()=>getWeather();$('copyCoords').onclick=()=>navigator.clipboard?.writeText(state.lat!=null?state.lat.toFixed(6)+', '+state.lon.toFixed(6):'');
- $('compassBtn').onclick=async()=>{
-  try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return}window.addEventListener('deviceorientation',onOrientation,true)}catch(e){window.addEventListener('deviceorientation',onOrientation,true)}
- };
- function onOrientation(e){let h=null;if(typeof e.webkitCompassHeading==='number')h=e.webkitCompassHeading;else if(typeof e.alpha==='number')h=(360-e.alpha)%360;if(h!=null){state.heading=h;$('heading').textContent=Math.round(h)+'°';$('compassBtn .n')?.style.setProperty('transform','none');const n=document.querySelector('.needle');n.style.opacity=1;n.style.transform='rotate('+h+'deg)';}}
- window.addEventListener('online',()=>{if(state.lat!=null){reverseGeocode();getWeather()}});
- startGPS();updateUI();if(state.lat!=null){setTimeout(initMap,300);if(navigator.onLine){reverseGeocode();getWeather()}}
+(()=>{const $=id=>document.getElementById(id), pages=['position','gps','address','weather'];
+const meta={position:['📍','Position','Where am I now?'],gps:['🛰️','GPS Data','How is it measured?'],address:['🗺️','Address','What place is this?'],weather:['🌤️','Weather',\"What's happening here?\"]};
+const s={lat:null,lon:null,acc:null,alt:null,speed:null,heading:null,time:null,address:'',parts:{},weather:null};let watch=null,map=null,marker=null;
+try{Object.assign(s,JSON.parse(localStorage.getItem('ml_state')||'{}'))}catch(e){}
+function save(){localStorage.setItem('ml_state',JSON.stringify(s))}
+function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('.content').scrollTop=0;if(p==='position')setTimeout(initMap,30)}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.page));$('back').onclick=()=>history.back();
+function tm(t){return t?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'}):'—'}
+function dir(h){if(h==null)return'—';const a=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];return a[Math.round(h/22.5)%16]}
+function ui(){if(s.lat==null)return;const lat=s.lat.toFixed(6),lon=s.lon.toFixed(6),acc=s.acc!=null?'± '+Math.round(s.acc)+' m':'—';
+$('pLat').textContent=lat+'° N';$('pLon').textContent=lon+'° E';$('pAcc').textContent=acc;$('pAlt').textContent=s.alt!=null?s.alt.toFixed(0)+' m':'—';$('pTime').textContent=s.time?new Date(s.time).toLocaleDateString()+' '+tm(s.time):'—';
+$('gFix').textContent='Valid position';$('gAcc').textContent=acc;$('gLat').textContent=lat;$('gLon').textContent=lon;$('gAlt').textContent=s.alt!=null?s.alt.toFixed(0)+' m':'—';$('gSpeed').textContent=s.speed!=null&&s.speed>=0?(s.speed*3.6).toFixed(1)+' km/h':'0.0 km/h';$('gHeading').textContent=s.heading!=null?Math.round(s.heading)+'° '+dir(s.heading):'—';$('gCompass').textContent=s.heading!=null?'● Available':'—';
+$('cDeg').textContent=s.heading!=null?Math.round(s.heading)+'°':'—°';$('cDir').textContent=s.heading!=null?dir(s.heading):'Tap header compass control';$('date').textContent=s.time?new Date(s.time).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}):'—';$('time').textContent=tm(s.time);$('mapInfo').textContent=s.lat.toFixed(4)+'°, '+s.lon.toFixed(4)+'°';if(map)updateMap()}
+function onPos(p){const c=p.coords;s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();save();ui();if(navigator.onLine){reverse();weather()}}
+function start(){if(!navigator.geolocation)return; if(watch)navigator.geolocation.clearWatch(watch);navigator.geolocation.getCurrentPosition(onPos,()=>{}, {enableHighAccuracy:true,maximumAge:0,timeout:15000});watch=navigator.geolocation.watchPosition(onPos,()=>{}, {enableHighAccuracy:true,maximumAge:2000,timeout:20000})}
+function initMap(){if(s.lat==null||!window.L)return;if(!map){$('map').innerHTML='';map=L.map('map',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,attributionControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);marker=L.circleMarker([s.lat,s.lon],{radius:10,color:'#fff',weight:3,fillColor:'#1df08a',fillOpacity:1}).addTo(map)}updateMap()}
+function updateMap(){if(!map)return;marker.setLatLng([s.lat,s.lon]);map.setView([s.lat,s.lon],10,{animate:false})}
+$('locate').onclick=()=>{if(map&&s.lat)map.setView([s.lat,s.lon],15)};$('zoomIn').onclick=()=>map?.zoomIn();$('zoomOut').onclick=()=>map?.zoomOut();
+async function reverse(){if(s.lat==null||!navigator.onLine)return;try{const r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+s.lat+'&longitude='+s.lon+'&localityLanguage=en');const d=await r.json();s.parts=d.address||{};const p=[d.locality,d.city,d.principalSubdivision,d.postcode,d.countryName].filter(Boolean);s.address=[...new Set(p)].join(', ');localStorage.setItem('ml_address',s.address);$('fullAddress').textContent=s.address||'Address unavailable';$('aStatus').textContent='ONLINE';$('aTime').textContent='Last successful lookup: '+new Date().toLocaleString();$('locality').textContent=d.locality||d.localityInfo?.administrative?.[3]?.name||'—';$('city').textContent=d.city||d.locality||'—';$('district').textContent=d.principalSubdivision||'—';$('state').textContent=d.principalSubdivision||'—';$('pin').textContent=d.postcode||'—';$('country').textContent=d.countryName||'—'}catch(e){$('aStatus').textContent='OFFLINE'}}
+const wx=c=>({0:['Clear sky','☀️'],1:['Mainly clear','🌤️'],2:['Partly cloudy','⛅'],3:['Overcast','☁️'],45:['Fog','🌫️'],51:['Drizzle','🌦️'],53:['Drizzle','🌦️'],55:['Heavy drizzle','🌧️'],61:['Light rain','🌧️'],63:['Rain','🌧️'],65:['Heavy rain','🌧️'],80:['Rain showers','🌦️'],81:['Rain showers','🌧️'],82:['Heavy showers','🌧️'],95:['Thunderstorm','⛈️'],96:['Thunderstorm','⛈️'],99:['Thunderstorm','⛈️']})[c]||['Unknown','☁️'];
+async function weather(){if(s.lat==null||!navigator.onLine)return;try{const u='https://api.open-meteo.com/v1/forecast?latitude='+s.lat+'&longitude='+s.lon+'&current=temperature_2m,relative_humidity_2m,apparent_temperature,cloud_cover,wind_speed_10m,wind_direction_10m,rain,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto';const r=await fetch(u);s.weather=await r.json();localStorage.setItem('ml_weather',JSON.stringify(s.weather));renderWeather()}catch(e){$('wStatus').textContent='OFFLINE'}}
+function renderWeather(){const d=s.weather;if(!d?.current)return;const c=d.current,w=wx(c.weather_code);$('temp').textContent=Math.round(c.temperature_2m)+'°C';$('condition').textContent=w[0];$('weatherIcon').textContent=w[1];$('feels').textContent=Math.round(c.apparent_temperature)+'°';$('humidity').textContent=c.relative_humidity_2m+'%';$('wind').textContent=Math.round(c.wind_speed_10m)+' km/h';$('winddir').textContent=Math.round(c.wind_direction_10m)+'°';$('cloud').textContent=c.cloud_cover+'%';$('rain').textContent=(c.rain??0)+' mm';$('dTemp').textContent=Math.round(c.temperature_2m)+'°C';$('dHum').textContent=c.relative_humidity_2m+'%';$('dWind').textContent=Math.round(c.wind_speed_10m)+' km/h';$('dCloud').textContent=c.cloud_cover+'%';$('dUv').textContent='—';$('dRain').textContent=(c.rain??0)+' mm';$('wStatus').textContent='ONLINE';$('forecast').innerHTML=(d.daily?.time||[]).map((t,i)=>{const z=wx(d.daily.weather_code[i]);return '<div class="day"><strong>'+new Date(t+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})+'</strong><div class="fi">'+z[1]+'</div><small>'+Math.round(d.daily.temperature_2m_max[i])+'° / '+Math.round(d.daily.temperature_2m_min[i])+'°</small></div>'}).join('')}
+$('refreshAddress').onclick=reverse;$('refreshWeather').onclick=weather;$('fresh').onclick=start;
+$('copyAddress').onclick=()=>navigator.clipboard?.writeText(s.address||'');$('copyPosition').onclick=()=>navigator.clipboard?.writeText(s.lat!=null?s.lat.toFixed(6)+', '+s.lon.toFixed(6):'');
+$('share').onclick=()=>{const u='https://maps.google.com/?q='+s.lat+','+s.lon;navigator.share?navigator.share({title:'My Location',text:s.lat+', '+s.lon,url:u}):navigator.clipboard?.writeText(u)};
+let orientAdded=false;$('compass').onclick=()=>{};
+document.querySelector('.menu').onclick=async()=>{try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return}if(!orientAdded){window.addEventListener('deviceorientation',e=>{let h=typeof e.webkitCompassHeading==='number'?e.webkitCompassHeading:(e.alpha!=null?(360-e.alpha)%360:null);if(h!=null){s.heading=h;ui()}} ,true);orientAdded=true}}catch(e){}};
+try{const a=localStorage.getItem('ml_address');if(a){s.address=a;$('fullAddress').textContent=a}}catch(e){}try{s.weather=JSON.parse(localStorage.getItem('ml_weather')||'null')}catch(e){}
+if(s.weather)renderWeather();ui();start();if(s.lat!=null){setTimeout(initMap,300);if(navigator.onLine){reverse();weather()}}
 })();
 </script>
-</body>
-</html>
+</body></html>
