@@ -5,7 +5,7 @@ const KEY="myLocationInfo.gps";
 const $=id=>document.getElementById(id);
 function set(id,v){const e=$(id);if(e)e.textContent=v}
 function save(c,t){try{localStorage.setItem(KEY,JSON.stringify({lat:c.latitude,lon:c.longitude,accuracy:c.accuracy,altitude:c.altitude,speed:c.speed,heading:c.heading,time:t}))}catch(e){}}
-function render(c,t){
+function render(c,t){window.dispatchEvent(new CustomEvent("gpsfix",{detail:c}));
  set("latitude",c.latitude.toFixed(6)+"°");
  set("longitude",c.longitude.toFixed(6)+"°");
  set("accuracy",Number.isFinite(c.accuracy)?Math.round(c.accuracy)+" m":"—");
