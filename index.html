@@ -70,7 +70,6 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 </section>
 
 <section id="position" class="page">
-<div class="hero"><h2>Position</h2><p>Where am I now?</p></div>
 <div class="map"><div id="map"></div><div class="map-info" id="mapInfo">Waiting for GPS…</div><div class="map-controls"><button id="locate">⌾</button><button id="zoomIn">+</button><button id="zoomOut">−</button></div></div>
 <div class="card"><div class="grid2">
 <div class="metric"><label>Latitude</label><strong id="pLat">—</strong></div><div class="metric"><label>Longitude</label><strong id="pLon">—</strong></div>
@@ -82,8 +81,7 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 </section>
 
 <section id="gps" class="page">
-<div class="hero"><h2>GPS Data</h2><p>How is it measured?</p></div>
-<div class="card"><h3>GPS status <span class="status" id="gpsStatus">● ACTIVE</span></h3><div class="grid2">
+<div class="card"><h3>GPS status <span class="status" id="gpsStatus">● SEARCHING</span></h3><div class="grid2">
 <div class="metric"><label>Location fix</label><strong id="gFix">Waiting</strong></div><div class="metric"><label>Accuracy</label><strong id="gAcc">—</strong></div>
 <div class="metric"><label>Latitude</label><strong id="gLat">—</strong></div><div class="metric"><label>Longitude</label><strong id="gLon">—</strong></div>
 <div class="metric"><label>Elevation</label><strong id="gAlt">—</strong></div><div class="metric"><label>Speed</label><strong id="gSpeed">—</strong></div>
@@ -95,7 +93,6 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 </section>
 
 <section id="address" class="page">
-<div class="hero"><h2>Address</h2><p>What place is this?</p></div>
 <div class="card"><h3>Current address <span id="aStatus" class="status">OFFLINE</span></h3><div class="address-main"><div class="homepin">⌂</div><div><strong id="fullAddress">Waiting for online lookup…</strong><div style="margin-top:7px;color:#9fb0bd;font-size:11px" id="aTime">No successful lookup yet</div></div></div><div class="row" style="margin-top:13px"><button class="primary" id="refreshAddress">Refresh address</button><button class="secondary" id="copyAddress">Copy address</button></div></div>
 <div class="card"><div class="listrow"><span>Locality</span><strong id="locality">—</strong></div><div class="listrow"><span>City / Town</span><strong id="city">—</strong></div><div class="listrow"><span>District</span><strong id="district">—</strong></div><div class="listrow"><span>State</span><strong id="state">—</strong></div><div class="listrow"><span>PIN code</span><strong id="pin">—</strong></div><div class="listrow"><span>Country</span><strong id="country">—</strong></div></div>
 <div class="card"><div class="listrow"><span>Plus Code</span><strong id="plus">—</strong></div><div class="listrow"><span>DIGIPIN</span><strong id="digipin">Not available</strong></div></div>
@@ -104,7 +101,6 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 </section>
 
 <section id="weather" class="page">
-<div class="hero"><h2>Weather</h2><p>What's happening here?</p></div>
 <div class="card"><h3>Current weather <span id="wStatus" class="status">OFFLINE</span></h3>
 <div class="weather-main"><div><div class="temp" id="temp">—</div><div class="condition" id="condition">Waiting…</div></div><div class="weather-symbol" id="weatherIcon">☁️</div></div>
 <div class="grid2"><div class="metric"><label>Feels like</label><strong id="feels">—</strong></div><div class="metric"><label>Humidity</label><strong id="humidity">—</strong></div><div class="metric"><label>Wind</label><strong id="wind">—</strong></div><div class="metric"><label>Gusts</label><strong id="gust">—</strong></div><div class="metric"><label>Wind direction</label><strong id="winddir">—</strong></div><div class="metric"><label>Rain now</label><strong id="rain">—</strong></div></div>
@@ -137,7 +133,7 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 const $=id=>document.getElementById(id), pages=['home','position','gps','address','weather'];
 const meta={home:['📍','My Location Info','Your location, GPS, address and weather'],position:['📍','Position','Where am I now?'],gps:['🛰️','GPS Data','How is it measured?'],address:['🗺️','Address','What place is this?'],weather:['🌤️','Weather',"What's happening here?"]};
 const s={lat:null,lon:null,acc:null,alt:null,speed:null,heading:null,time:null,address:'',parts:{},weather:null,aq:null};
-let watch=null,map=null,marker=null,homeMap=null,homeMarker=null,radarMap=null;
+let watch=null,map=null,marker=null,radarMap=null;
 try{Object.assign(s,JSON.parse(localStorage.getItem('ml_state')||'{}'))}catch(e){}
 function save(){localStorage.setItem('ml_state',JSON.stringify(s))}
 function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.querySelectorAll('.tab[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('back').style.visibility=p==='home'?'hidden':'visible';$('.content').scrollTop=0;if(p==='position')setTimeout(initMap,40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
@@ -159,12 +155,12 @@ function ui(){
  updateHomeMap();
  const n=document.querySelector('.needle');if(n&&s.heading!=null)n.style.transform='translate(-2px,-100%) rotate('+s.heading+'deg)';
 }
-function onPos(p){const c=p.coords;s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();$('gpsStatus').textContent='● ACTIVE';setText('gpsHelp','GPS fix received. Accuracy ± '+Math.round(c.accuracy)+' m.');save();ui();if(!map) setTimeout(initMap,40);if(navigator.onLine){reverse();weather()}}
+function onPos(p){const c=p.coords;if(!c||typeof c.latitude!=='number'||typeof c.longitude!=='number'){geoError({code:2});return}s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();$('gpsStatus').textContent='● ACTIVE';setText('gFix','Valid position');setText('gpsHelp','GPS fix received · Accuracy ± '+Math.round(c.accuracy)+' m');save();ui();if(!map) setTimeout(initMap,40);if(navigator.onLine){reverse();weather()}}
 function geoError(e){const m=e&&e.code===1?'Location permission denied. In Safari, open Page Menu → Website Settings → Location → Allow.':e&&e.code===2?'Location is temporarily unavailable. Make sure iPhone Location Services is on, then try again.':e&&e.code===3?'GPS fix timed out. Keep the app open and tap Request GPS again.':'Unable to obtain the device location.';$('gpsStatus').textContent=e&&e.code===1?'● DENIED':'● WAITING';setText('gFix',e&&e.code===1?'Permission denied':'Waiting');setText('homeGps',m);setText('homeSummary',m);setText('homeMapBadge','GPS not available');setText('gpsHelp',m);setText('mapInfo',m)}
-function start(){if(!navigator.geolocation){geoError({code:2});return}if(watch)navigator.geolocation.clearWatch(watch);$('gpsStatus').textContent='● SEARCHING';setText('gFix','Searching…');setText('gpsHelp','Requesting device location…');navigator.geolocation.getCurrentPosition(onPos,geoError,{enableHighAccuracy:true,maximumAge:10000,timeout:30000});watch=navigator.geolocation.watchPosition(onPos,geoError,{enableHighAccuracy:true,maximumAge:5000,timeout:60000})}
+function start(){if(!navigator.geolocation){geoError({code:2});return}if(watch)navigator.geolocation.clearWatch(watch);$('gpsStatus').textContent='● SEARCHING';setText('gFix','Searching…');setText('gpsHelp','Requesting device location…');navigator.geolocation.getCurrentPosition(onPos,geoError,{enableHighAccuracy:true,maximumAge:0,timeout:30000});watch=navigator.geolocation.watchPosition(onPos,geoError,{enableHighAccuracy:true,maximumAge:0,timeout:60000})}
 function initMap(){if(s.lat==null||!window.L)return;if(!map){$('map').innerHTML='';map=L.map('map',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,dragging:true,attributionControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);marker=L.circleMarker([s.lat,s.lon],{radius:9,color:'#fff',weight:3,fillColor:'#1df08a',fillOpacity:1}).addTo(map)}updateMap()}
 function updateMap(){if(!map||s.lat==null)return;marker.setLatLng([s.lat,s.lon]);map.setView([s.lat,s.lon],map.getZoom()<12?15:map.getZoom(),{animate:false})}
-function initHomeMap(){if(!window.L)return;if(!homeMap){$('homeMap').innerHTML='';homeMap=L.map('homeMap',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,dragging:true,attributionControl:true,zoomSnap:1}).setView([20.5937,78.9629],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(homeMap);homeMarker=L.circleMarker([20.5937,78.9629],{radius:8,color:'#fff',weight:2,fillColor:'#1df08a',fillOpacity:1}).addTo(homeMap)}updateHomeMap();setTimeout(()=>homeMap.invalidateSize(),60)}
+function initHomeMap(){}
 function updateHomeMap(){if(!homeMap)return;if(s.lat!=null){homeMarker.setLatLng([s.lat,s.lon]);homeMap.setView([s.lat,s.lon],15,{animate:false});setText('homeMapBadge','● GPS location')}else setText('homeMapBadge','Waiting for GPS…')}
 function updateHome(){if(s.lat==null){setText('homePosition','Waiting for GPS fix');setText('homeGps','Waiting for GPS fix');setText('homeMapBadge','Waiting for GPS…')}else{setText('homePosition',s.lat.toFixed(5)+'° N, '+s.lon.toFixed(5)+'° E');setText('homeGps',s.acc!=null?'Accuracy ± '+Math.round(s.acc)+' m':'GPS fix available');setText('homeSummary','Updated '+tm(s.time)+' · Accuracy '+(s.acc!=null?'± '+Math.round(s.acc)+' m':'—'));}setText('homeAddress',s.address||'Waiting for address lookup');const w=s.weather?.current;if(w){const z=wx(w.weather_code);setText('homeWeather',Math.round(w.temperature_2m)+'°C · '+z[0])}else setText('homeWeather',s.lat==null?'Waiting for GPS fix':'Waiting for weather');updateHomeMap()}
 $('locate').onclick=()=>{if(map&&s.lat!=null)map.setView([s.lat,s.lon],16,{animate:false})};
