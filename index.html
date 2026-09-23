@@ -48,6 +48,7 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 .nav{height:86px;flex:0 0 86px;border-top:1px solid #16435d;background:rgba(2,10,17,.98);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:20}
 .tab{background:none;color:#a9b5be;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px}.tab .ico{font-size:24px;line-height:1}.tab.active{color:#fff}.tab.active .ico{color:#22cfff;background:#063f69;border-radius:10px;padding:4px 12px}.tab.active span:last-child{color:#dff7ff}
 .notice{font-size:12px;color:#aebdca;line-height:1.5}.radarLink{display:block;text-align:center;margin-top:10px;color:#61dcff;text-decoration:none}
+.homePage{padding:0 1px}.homeIntro{text-align:center;padding:3px 4px 10px}.homeIntro h2{font-size:22px;margin:0 0 3px}.homeIntro p{margin:0;color:#aebdca;font-size:13px}.homeMap{height:285px;border-radius:16px;overflow:hidden;border:1px solid #1686cf;background:#0a1722;position:relative;margin-bottom:10px}.homeMap #homeMap{width:100%;height:100%}.homeMapBadge{position:absolute;z-index:500;left:9px;top:9px;background:rgba(2,12,20,.84);border:1px solid #1c6c9d;border-radius:9px;padding:6px 9px;font-size:11px}.homeCards{display:grid;grid-template-columns:1fr 1fr;gap:9px}.homeCard{min-height:112px;text-align:left;background:linear-gradient(145deg,rgba(7,34,56,.98),rgba(4,18,31,.98));border:1px solid #1686cf;border-radius:15px;padding:12px}.homeCard .hcIcon{font-size:25px;display:block;margin-bottom:5px}.homeCard strong{display:block;font-size:15px;margin-bottom:3px}.homeCard small{display:block;color:#aebdca;font-size:11px;line-height:1.35}.homeSummary{margin-top:9px;padding:8px 10px;border:1px solid #17689b;border-radius:11px;background:rgba(5,28,47,.7);font-size:11px;color:#b9c8d3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.homePage .homeCard:active{transform:scale(.985)}
 @media(max-width:380px){.header{height:108px;flex-basis:108px}.header h1{font-size:21px}.content{padding-left:8px;padding-right:8px}.map{height:330px}.temp{font-size:48px}.compassSmall{width:82px;height:82px;flex-basis:82px}}
 </style>
 </head>
@@ -56,7 +57,19 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 <header class="header"><button class="back" id="back">‹</button><div id="headerIcon" class="hero-icon">📍</div><h1 id="title">Position</h1><p id="subtitle">Where am I now?</p><button class="compassBtn" id="compassBtn" aria-label="Enable compass"><div class="miniN"><span id="miniDeg">N</span></div></button></header>
 <main class="content">
 
-<section id="position" class="page active">
+<section id="home" class="page active homePage">
+<div class="homeIntro"><h2>My Location Info</h2><p>Your location, GPS, address and weather in one place</p></div>
+<div class="homeMap"><div id="homeMap"></div><div class="homeMapBadge" id="homeMapBadge">Waiting for GPS…</div></div>
+<div class="homeCards">
+<button class="homeCard" data-home="position"><span class="hcIcon">📍</span><strong>Position</strong><small id="homePosition">Where am I now?</small></button>
+<button class="homeCard" data-home="gps"><span class="hcIcon">🛰️</span><strong>GPS Data</strong><small id="homeGps">Waiting for GPS fix</small></button>
+<button class="homeCard" data-home="address"><span class="hcIcon">🗺️</span><strong>Address</strong><small id="homeAddress">Waiting for address</small></button>
+<button class="homeCard" data-home="weather"><span class="hcIcon">🌤️</span><strong>Weather</strong><small id="homeWeather">Waiting for weather</small></button>
+</div>
+<div class="homeSummary" id="homeSummary">GPS starts automatically when location permission is available.</div>
+</section>
+
+<section id="position" class="page">
 <div class="hero"><h2>Position</h2><p>Where am I now?</p></div>
 <div class="map"><div id="map"></div><div class="map-info" id="mapInfo">Waiting for GPS…</div><div class="map-controls"><button id="locate">⌾</button><button id="zoomIn">+</button><button id="zoomOut">−</button></div></div>
 <div class="card"><div class="grid2">
@@ -121,20 +134,21 @@ button{font:inherit;border:0;color:inherit;cursor:pointer}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (()=> {
-const $=id=>document.getElementById(id), pages=['position','gps','address','weather'];
-const meta={position:['📍','Position','Where am I now?'],gps:['🛰️','GPS Data','How is it measured?'],address:['🗺️','Address','What place is this?'],weather:['🌤️','Weather',"What's happening here?"]};
+const $=id=>document.getElementById(id), pages=['home','position','gps','address','weather'];
+const meta={home:['📍','My Location Info','Your location, GPS, address and weather'],position:['📍','Position','Where am I now?'],gps:['🛰️','GPS Data','How is it measured?'],address:['🗺️','Address','What place is this?'],weather:['🌤️','Weather',"What's happening here?"]};
 const s={lat:null,lon:null,acc:null,alt:null,speed:null,heading:null,time:null,address:'',parts:{},weather:null,aq:null};
-let watch=null,map=null,marker=null,radarMap=null;
+let watch=null,map=null,marker=null,homeMap=null,homeMarker=null,radarMap=null;
 try{Object.assign(s,JSON.parse(localStorage.getItem('ml_state')||'{}'))}catch(e){}
 function save(){localStorage.setItem('ml_state',JSON.stringify(s))}
-function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.querySelectorAll('.tab[data-page]').forEach(b=>b.classList.remove('active'));const activeTab=document.querySelector('.tab[data-page="'+p+'"]');if(activeTab)activeTab.classList.add('active');$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('.content').scrollTop=0;if(p==='position')setTimeout(initMap,40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
-document.querySelectorAll('.tab[data-page]').forEach(b=>b.onclick=()=>show(b.dataset.page));
-$('back').onclick=()=>history.back();
+function show(p){pages.forEach(x=>$(x).classList.toggle('active',x===p));document.querySelectorAll('.tab[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$('headerIcon').textContent=meta[p][0];$('title').textContent=meta[p][1];$('subtitle').textContent=meta[p][2];$('back').style.visibility=p==='home'?'hidden':'visible';$('.content').scrollTop=0;if(p==='home')setTimeout(()=>{initHomeMap();updateHome()},40);if(p==='position')setTimeout(initMap,40);if(p==='weather'&&document.querySelector('.wt.active')?.dataset.wtab==='radar')setTimeout(initRadar,80)}
+document.querySelectorAll('.tab[data-page]').forEach(b=>b.onclick=()=>show(b.dataset.page));document.querySelectorAll('.homeCard[data-home]').forEach(b=>b.onclick=()=>show(b.dataset.home));
+$('back').onclick=()=>show('home');
 function tm(t){return t?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'}):'—'}
 function shortTime(t){return t?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'—'}
 function dir(h){if(h==null)return'—';const a=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];return a[Math.round(h/22.5)%16]}
 function setText(id,v){const e=$(id);if(e)e.textContent=v==null?'—':v}
 function ui(){
+ updateHome();
  if(s.lat==null)return;
  const lat=s.lat.toFixed(6),lon=s.lon.toFixed(6),acc=s.acc!=null?'± '+Math.round(s.acc)+' m':'—';
  setText('pLat',lat+'° N');setText('pLon',lon+'° E');setText('pAcc',acc);setText('pAlt',s.alt!=null?s.alt.toFixed(0)+' m':'—');setText('pTime',s.time?new Date(s.time).toLocaleDateString()+' '+tm(s.time):'—');
@@ -142,12 +156,16 @@ function ui(){
  setText('cDeg',s.heading!=null?Math.round(s.heading)+'°':'—°');setText('cDir',s.heading!=null?dir(s.heading):'Tap the compass in the header');setText('miniDeg',s.heading!=null?Math.round(s.heading)+'°':'N');
  setText('digipin',makeDIGIPIN(s.lat,s.lon));setText('date',s.time?new Date(s.time).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}):'—');setText('time',tm(s.time));setText('tz',Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Kolkata');
  if(map)updateMap();
+ updateHomeMap();
  const n=document.querySelector('.needle');if(n&&s.heading!=null)n.style.transform='translate(-2px,-100%) rotate('+s.heading+'deg)';
 }
 function onPos(p){const c=p.coords;s.lat=c.latitude;s.lon=c.longitude;s.acc=c.accuracy;s.alt=c.altitude;s.speed=c.speed;s.heading=c.heading!=null&&c.heading>=0?c.heading:null;s.time=p.timestamp||Date.now();save();ui();if(!map) setTimeout(initMap,40); if(navigator.onLine){reverse();weather()}}
 function start(){if(!navigator.geolocation){$('gpsStatus').textContent='● UNAVAILABLE';return}if(watch)navigator.geolocation.clearWatch(watch);navigator.geolocation.getCurrentPosition(onPos,()=>{$('gpsStatus').textContent='● WAITING'}, {enableHighAccuracy:true,maximumAge:0,timeout:15000});watch=navigator.geolocation.watchPosition(onPos,()=>{$('gpsStatus').textContent='● WAITING'}, {enableHighAccuracy:true,maximumAge:2000,timeout:20000})}
 function initMap(){if(s.lat==null||!window.L)return;if(!map){$('map').innerHTML='';map=L.map('map',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,dragging:true,attributionControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);marker=L.circleMarker([s.lat,s.lon],{radius:9,color:'#fff',weight:3,fillColor:'#1df08a',fillOpacity:1}).addTo(map)}updateMap()}
 function updateMap(){if(!map||s.lat==null)return;marker.setLatLng([s.lat,s.lon]);map.setView([s.lat,s.lon],map.getZoom()<12?15:map.getZoom(),{animate:false})}
+function initHomeMap(){if(!window.L)return;if(!homeMap){$('homeMap').innerHTML='';homeMap=L.map('homeMap',{zoomControl:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,dragging:true,attributionControl:true,zoomSnap:1}).setView([20.5937,78.9629],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(homeMap);homeMarker=L.circleMarker([20.5937,78.9629],{radius:8,color:'#fff',weight:2,fillColor:'#1df08a',fillOpacity:1}).addTo(homeMap)}updateHomeMap();setTimeout(()=>homeMap.invalidateSize(),60)}
+function updateHomeMap(){if(!homeMap)return;if(s.lat!=null){homeMarker.setLatLng([s.lat,s.lon]);homeMap.setView([s.lat,s.lon],15,{animate:false});setText('homeMapBadge','● GPS location')}else setText('homeMapBadge','Waiting for GPS…')}
+function updateHome(){if(s.lat==null){setText('homePosition','Waiting for GPS fix');setText('homeGps','Waiting for GPS fix');setText('homeMapBadge','Waiting for GPS…')}else{setText('homePosition',s.lat.toFixed(5)+'° N, '+s.lon.toFixed(5)+'° E');setText('homeGps',s.acc!=null?'Accuracy ± '+Math.round(s.acc)+' m':'GPS fix available');setText('homeSummary','Updated '+tm(s.time)+' · Accuracy '+(s.acc!=null?'± '+Math.round(s.acc)+' m':'—'));}setText('homeAddress',s.address||'Waiting for address lookup');const w=s.weather?.current;if(w){const z=wx(w.weather_code);setText('homeWeather',Math.round(w.temperature_2m)+'°C · '+z[0])}else setText('homeWeather','Waiting for weather');updateHomeMap()}
 $('locate').onclick=()=>{if(map&&s.lat!=null)map.setView([s.lat,s.lon],16,{animate:false})};
 $('zoomIn').onclick=()=>map?.zoomIn();$('zoomOut').onclick=()=>map?.zoomOut();
 
@@ -218,7 +236,7 @@ $('compassBtn').onclick=enableCompass;
 
 try{const a=localStorage.getItem('ml_address');if(a){s.address=a;$('fullAddress').textContent=a;$('aStatus').textContent='CACHED'}}catch(e){}
 try{const x=JSON.parse(localStorage.getItem('ml_weather')||'null');if(x){s.weather=x.weather||x;s.aq=x.aq||null}}catch(e){}
-if(s.weather)renderWeather();ui();start();if(s.lat!=null){setTimeout(initMap,300);if(navigator.onLine){reverse();weather()}}
+if(s.weather)renderWeather();show('home');ui();start();if(s.lat!=null){setTimeout(()=>{initMap();initHomeMap()},300);if(navigator.onLine){reverse();weather()}}
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 })();
