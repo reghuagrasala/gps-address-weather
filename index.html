@@ -85,7 +85,21 @@ Place: ${W}`;p(z),E(fe),B(Ue),m(re),ul.current={pos:{...e},time:w}}}catch{}})()}
 /* Weather cards in two columns; final card centred */
 .weather-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}
 .weather-grid .weather-tab{width:auto!important;min-width:0!important}
-.weather-grid .weather-tab:last-child{grid-column:1 / -1!important;justify-self:center!important;width:calc(50% - 6px)!important}*{font-family: ui-sans-system, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;box-sizing:border-box;}
+.weather-grid .weather-tab:last-child{grid-column:1 / -1!important;justify-self:center!important;width:calc(50% - 6px)!important}
+/* Final mobile two-column card layout */
+.gps-metric-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:start!important}
+.gps-metric-grid .gps-metric-tab{width:auto!important;min-width:0!important}
+.gps-metric-grid .gps-metric-tab:last-child{grid-column:1 / -1!important;justify-self:center!important;width:calc(50% - 6px)!important}
+
+/* Compact heading card while keeping compass/title controls visible */
+.gps-heading-tab{min-height:250px!important;height:250px!important;max-height:250px!important}
+.gps-heading-tab .absolute.w-[80px].h-[80px]{width:74px!important;height:74px!important}
+
+/* Weather metrics: two cards per row, final card centered */
+.weather-section > div:nth-of-type(3){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:start!important}
+.weather-section > div:nth-of-type(3) .weather-tab{width:auto!important;min-width:0!important}
+.weather-section > div:nth-of-type(3) .weather-tab:last-child{grid-column:1 / -1!important;justify-self:center!important;width:calc(50% - 6px)!important}
+*{font-family: ui-sans-system, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;box-sizing:border-box;}
         #root{overflow-x:hidden;width:100%;max-width:100vw;}
         .container{overflow-x:hidden;max-width:420px;width:100%;box-sizing:border-box;margin:0 auto;}
         [class*="rounded-"]{max-width:100%;box-sizing:border-box;word-wrap:break-word;overflow-wrap:break-word;}
